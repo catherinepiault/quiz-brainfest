@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Peau & Naturopathie — Apprendre en jouant</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f3ec;
+  --card: #fffdf8;
+  --sage: #6b9e78;
+  --sage-light: #a8c9b0;
+  --sage-dark: #3d6b4a;
+  --terra: #c4784a;
+  --terra-light: #e0a882;
+  --gold: #c9a84c;
+  --blush: #e8c4b0;
+  --charcoal: #2a2520;
+  --warm-grey: #7a7268;
+  --cream: #faf6ef;
+  --border: rgba(42,37,32,0.1);
+  --success: #4a8c5c;
+  --error: #b04040;
+  --warning: #c9843a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--bg);
+  color: var(--charcoal);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* BACKGROUND ORGANIC TEXTURE */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(107,158,120,0.13) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 85% 85%, rgba(196,120,74,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 20px 100px;
+  position: relative;
+  z-index: 1;
+}
+
+/* === ORGANIC SVG ILLUSTRATIONS === */
+.illustration {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0 20px;
+}
+.illustration svg { filter: drop-shadow(0 4px 12px rgba(107,158,120,0.18)); }
+
+/* === HEADER === */
+.site-header {
+  text-align: center;
+  margin-bottom: 52px;
+  animation: fadeDown 1s ease both;
+}
+.site-header .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--sage-dark);
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+.site-header .eyebrow::before,
+.site-header .eyebrow::after {
+  content: '';
+  width: 30px; height: 1px;
+  background: var(--sage);
+}
+.site-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  line-height: 1.12;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 16px;
+}
+.site-header h1 em { color: var(--terra); font-style: italic; }
+.site-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--warm-grey);
+  letter-spacing: 0.5px;
+}
+.ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+.ornament-line { flex: 1; max-width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--sage-light)); }
+.ornament-line.right { background: linear-gradient(90deg, var(--sage-light), transparent); }
+.ornament-diamond { width: 8px; height: 8px; background: var(--gold); transform: rotate(45deg); }
+
+/* === LEVEL TRACK === */
+.level-track {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.lvl-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  border: 1.5px solid var(--border);
+  color: var(--warm-grey);
+  background: rgba(255,253,248,0.7);
+  transition: all 0.3s;
+}
+.lvl-pill.active { background: var(--terra); border-color: var(--terra); color: white; }
+.lvl-pill.done { background: var(--sage); border-color: var(--sage); color: white; }
+
+/* === CARDS === */
+.card {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 44px 48px;
+  box-shadow: 0 2px 40px rgba(42,37,32,0.08), 0 1px 3px rgba(42,37,32,0.05);
+  border: 1px solid var(--border);
+  animation: fadeUp 0.55s ease both;
+  position: relative;
+  overflow: hidden;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle at top right, rgba(107,158,120,0.08), transparent 70%);
+  pointer-events: none;
+}
+
+/* === INTRO === */
+.intro-card { text-align: center; }
+.intro-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  line-height: 1.3;
+}
+.intro-card p {
+  font-size: 1.02rem;
+  line-height: 1.8;
+  color: #4a4540;
+  margin-bottom: 14px;
+  text-align: left;
+}
+.intro-highlight {
+  background: linear-gradient(135deg, rgba(107,158,120,0.12), rgba(196,120,74,0.08));
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin: 20px 0;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--sage-dark);
+  border-left: 3px solid var(--sage);
+  text-align: left;
+  font-style: italic;
+}
+
+/* === LEVEL INTRO === */
+.level-intro-card { text-align: center; }
+.level-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+.level-intro-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  margin-bottom: 6px;
+}
+.level-tag {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+.level-intro-card .desc {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #555;
+  max-width: 520px;
+  margin: 0 auto 28px;
+}
+
+/* === PROGRESS === */
+.q-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.q-num { font-size: 12px; color: var(--warm-grey); letter-spacing: 1px; text-transform: uppercase; }
+.q-tag {
+  font-size: 11px; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.progress-wrap {
+  height: 5px; background: rgba(42,37,32,0.08);
+  border-radius: 3px; margin-bottom: 28px; overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--sage), var(--terra));
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.q-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--charcoal);
+  margin-bottom: 26px;
+}
+.q-retry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(201,132,58,0.12);
+  color: var(--warning);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+/* === OPTIONS === */
+.options { display: flex; flex-direction: column; gap: 11px; }
+.opt {
+  display: flex; align-items: center; gap: 14px;
+  padding: 15px 20px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.97rem;
+  color: var(--charcoal);
+  text-align: left;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+.opt:hover:not(:disabled) {
+  border-color: var(--terra-light);
+  background: rgba(228,168,130,0.06);
+  transform: translateX(5px);
+  box-shadow: 0 2px 12px rgba(196,120,74,0.1);
+}
+.opt-letter {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(42,37,32,0.06);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 13px; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.opt.correct { border-color: var(--success); background: rgba(74,140,92,0.07); }
+.opt.correct .opt-letter { background: var(--success); color: white; }
+.opt.wrong { border-color: var(--error); background: rgba(176,64,64,0.06); }
+.opt.wrong .opt-letter { background: var(--error); color: white; }
+.opt:disabled { cursor: default; }
+
+/* === FEEDBACK === */
+.feedback {
+  margin-top: 18px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  font-size: 0.93rem;
+  line-height: 1.65;
+  animation: fadeUp 0.35s ease both;
+}
+.feedback.ok { background: rgba(74,140,92,0.09); border-left: 4px solid var(--success); color: #234d30; }
+.feedback.ko { background: rgba(176,64,64,0.07); border-left: 4px solid var(--error); color: #6b2020; }
+.feedback strong { display: block; margin-bottom: 6px; font-size: 1rem; }
+
+/* === ENCOURAGE === */
+.encourage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(201,168,76,0.10);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  font-size: 0.88rem;
+  color: #5a4a10;
+  font-style: italic;
+  animation: fadeUp 0.4s ease both;
+}
+.encourage .enc-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+/* === SUPPLEMENT BUBBLE === */
+.supp-bubble {
+  background: linear-gradient(135deg, rgba(107,158,120,0.13), rgba(201,168,76,0.10));
+  border: 1.5px solid rgba(107,158,120,0.3);
+  border-radius: 20px;
+  padding: 22px 26px;
+  margin-top: 24px;
+  animation: fadeUp 0.5s ease 0.2s both;
+  position: relative;
+}
+.supp-bubble::before {
+  content: '🌿';
+  position: absolute;
+  top: -14px; left: 24px;
+  font-size: 1.4rem;
+  background: var(--card);
+  padding: 0 6px;
+}
+.supp-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--sage-dark);
+  margin-bottom: 10px;
+}
+.supp-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.supp-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 0.88rem; line-height: 1.55; color: #3a4a3e;
+}
+.supp-list li::before { content: '◆'; color: var(--sage); font-size: 0.6rem; margin-top: 5px; flex-shrink: 0; }
+.supp-placeholder {
+  display: inline-block;
+  background: rgba(107,158,120,0.2);
+  border: 1px dashed var(--sage);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  color: var(--sage-dark);
+  font-style: italic;
+  cursor: pointer;
+}
+
+/* === LEVEL DEBRIEF === */
+.debrief {
+  background: linear-gradient(135deg, rgba(42,37,32,0.03), rgba(107,158,120,0.06));
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  border: 1px solid var(--border);
+}
+.debrief-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.debrief p { font-size: 0.93rem; line-height: 1.7; color: #4a4540; margin-bottom: 8px; }
+.debrief p:last-child { margin-bottom: 0; }
+
+/* === SCORE DISPLAY === */
+.score-ring {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: conic-gradient(var(--sage) 0%, var(--terra) 100%);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 6px 24px rgba(107,158,120,0.25);
+}
+.score-inner {
+  width: 82px; height: 82px;
+  border-radius: 50%;
+  background: white;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: var(--charcoal); line-height: 1; }
+.score-of { font-size: 0.7rem; color: var(--warm-grey); }
+
+/* === BUTTONS === */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px; border-radius: 50px;
+  border: none; cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.93rem; font-weight: 500;
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--terra), #a85c2c);
+  color: white;
+  box-shadow: 0 4px 18px rgba(196,120,74,0.28);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(196,120,74,0.38); }
+.btn-sage {
+  background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+  color: white;
+  box-shadow: 0 4px 18px rgba(107,158,120,0.25);
+}
+.btn-sage:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(107,158,120,0.35); }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--sage);
+  color: var(--sage-dark);
+}
+.btn-outline:hover { background: rgba(107,158,120,0.08); }
+.btn-row {
+  display: flex; gap: 12px; margin-top: 24px;
+  flex-wrap: wrap; justify-content: flex-end;
+}
+.btn-row.center { justify-content: center; }
+
+/* === FINAL === */
+.final-card { text-align: center; }
+.trophy-wrap { font-size: 72px; margin-bottom: 16px; display: block; animation: bounceIn 0.8s ease; }
+.final-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; margin-bottom: 10px; }
+.final-score { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--terra); font-weight: 600; }
+.final-msg { font-size: 1rem; line-height: 1.75; color: #4a4540; margin: 18px 0 24px; }
+.cta-box {
+  background: linear-gradient(135deg, rgba(107,158,120,0.12), rgba(196,120,74,0.10));
+  border: 2px solid rgba(107,158,120,0.3);
+  border-radius: 20px;
+  padding: 32px 28px;
+}
+.cta-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 10px; color: var(--sage-dark); }
+.cta-box p { font-size: 0.95rem; color: #555; margin-bottom: 22px; line-height: 1.65; }
+
+/* === ANIMATIONS === */
+@keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeDown { from { opacity:0; transform:translateY(-22px); } to { opacity:1; transform:translateY(0); } }
+@keyframes bounceIn {
+  0% { transform: scale(0.5) rotate(-10deg); opacity:0; }
+  60% { transform: scale(1.15) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity:1; }
+}
+@keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.06); } }
+@keyframes floatLeaf { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-8px) rotate(5deg); } }
+.float { animation: floatLeaf 4s ease-in-out infinite; }
+
+/* === RESPONSIVE === */
+@media(max-width:580px) {
+  .card { padding: 28px 20px; }
+  .q-text { font-size: 1.2rem; }
+  .btn-row { justify-content: center; }
+  .site-header h1 { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- HEADER -->
+  <div class="site-header">
+    <div class="eyebrow">Naturopathie & Santé de la Peau</div>
+    <h1>Votre peau a<br><em>une histoire à raconter</em></h1>
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+    <div class="subtitle">Quiz éducatif · Acné · Eczéma · Psoriasis · 4 niveaux progressifs</div>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+// ==============================
+// ILLUSTRATIONS SVG ORGANIQUES
+// ==============================
+const SVG = {
+  intro: `<svg width="180" height="160" viewBox="0 0 180 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="90" cy="130" rx="65" ry="12" fill="rgba(107,158,120,0.12)"/>
+    <!-- Visage stylisé floral -->
+    <circle cx="90" cy="72" r="48" fill="#faf6ef" stroke="#6b9e78" stroke-width="1.5"/>
+    <!-- Feuilles décoratives -->
+    <path d="M42 55 Q30 35 50 30 Q45 50 60 55" fill="rgba(107,158,120,0.4)" stroke="#3d6b4a" stroke-width="1"/>
+    <path d="M138 55 Q150 35 130 30 Q135 50 120 55" fill="rgba(107,158,120,0.4)" stroke="#3d6b4a" stroke-width="1"/>
+    <!-- Pétales haut -->
+    <ellipse cx="90" cy="28" rx="8" ry="14" fill="rgba(196,120,74,0.25)" stroke="#c4784a" stroke-width="1" transform="rotate(-10 90 28)"/>
+    <ellipse cx="74" cy="32" rx="6" ry="12" fill="rgba(196,120,74,0.2)" stroke="#c4784a" stroke-width="1" transform="rotate(-35 74 32)"/>
+    <ellipse cx="106" cy="32" rx="6" ry="12" fill="rgba(196,120,74,0.2)" stroke="#c4784a" stroke-width="1" transform="rotate(35 106 32)"/>
+    <!-- Yeux -->
+    <ellipse cx="76" cy="68" rx="6" ry="7" fill="#2a2520"/>
+    <ellipse cx="104" cy="68" rx="6" ry="7" fill="#2a2520"/>
+    <circle cx="78" cy="66" r="2" fill="white"/>
+    <circle cx="106" cy="66" r="2" fill="white"/>
+    <!-- Sourire -->
+    <path d="M78 85 Q90 96 102 85" stroke="#c4784a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Joues -->
+    <ellipse cx="68" cy="80" rx="8" ry="5" fill="rgba(228,168,130,0.4)"/>
+    <ellipse cx="112" cy="80" rx="8" ry="5" fill="rgba(228,168,130,0.4)"/>
+    <!-- Petites étoiles déco -->
+    <circle cx="55" cy="100" r="3" fill="rgba(201,168,76,0.5)"/>
+    <circle cx="125" cy="95" r="2" fill="rgba(201,168,76,0.5)"/>
+    <circle cx="60" cy="110" r="1.5" fill="rgba(107,158,120,0.6)"/>
+  </svg>`,
+
+  level1: `<svg width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="80" cy="118" rx="55" ry="9" fill="rgba(107,158,120,0.1)"/>
+    <!-- Feuille principale -->
+    <path d="M80 20 Q120 50 100 100 Q80 115 60 100 Q40 50 80 20Z" fill="rgba(107,158,120,0.2)" stroke="#6b9e78" stroke-width="1.5"/>
+    <path d="M80 20 Q80 65 80 108" stroke="#3d6b4a" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <!-- Nervures -->
+    <path d="M80 50 Q95 55 100 70" stroke="#3d6b4a" stroke-width="0.8" fill="none"/>
+    <path d="M80 50 Q65 55 60 70" stroke="#3d6b4a" stroke-width="0.8" fill="none"/>
+    <path d="M80 70 Q90 73 93 83" stroke="#3d6b4a" stroke-width="0.8" fill="none"/>
+    <path d="M80 70 Q70 73 67 83" stroke="#3d6b4a" stroke-width="0.8" fill="none"/>
+    <!-- Goutte d'eau -->
+    <path d="M115 30 Q115 20 122 15 Q129 20 129 30 Q129 37 122 40 Q115 37 115 30Z" fill="rgba(107,158,120,0.4)" stroke="#6b9e78" stroke-width="1"/>
+    <!-- Petits points décoratifs -->
+    <circle cx="35" cy="60" r="4" fill="rgba(201,168,76,0.5)"/>
+    <circle cx="30" cy="75" r="2.5" fill="rgba(196,120,74,0.4)"/>
+    <circle cx="40" cy="85" r="3" fill="rgba(107,158,120,0.5)"/>
+  </svg>`,
+
+  level2: `<svg width="160" height="140" viewBox="0 0 160 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="80" cy="128" rx="55" ry="9" fill="rgba(196,120,74,0.1)"/>
+    <!-- Fiole / bocal de plantes -->
+    <path d="M60 40 L65 90 Q65 110 80 110 Q95 110 95 90 L100 40Z" fill="rgba(196,120,74,0.15)" stroke="#c4784a" stroke-width="1.5"/>
+    <path d="M55 40 L105 40" stroke="#c4784a" stroke-width="2" stroke-linecap="round"/>
+    <path d="M65 30 L68 40 M80 25 L80 40 M95 30 L92 40" stroke="#c4784a" stroke-width="1.2" stroke-linecap="round"/>
+    <!-- Contenu coloré -->
+    <path d="M65 90 Q65 105 80 105 Q95 105 95 90 L92 70 L68 70Z" fill="rgba(196,120,74,0.25)"/>
+    <!-- Bulles -->
+    <circle cx="72" cy="80" r="4" fill="rgba(255,255,255,0.6)" stroke="#c4784a" stroke-width="0.8"/>
+    <circle cx="85" cy="75" r="3" fill="rgba(255,255,255,0.6)" stroke="#c4784a" stroke-width="0.8"/>
+    <circle cx="78" cy="90" r="2.5" fill="rgba(255,255,255,0.5)"/>
+    <!-- Petite feuille dans la fiole -->
+    <path d="M74 60 Q78 50 82 60 Q78 65 74 60Z" fill="rgba(107,158,120,0.6)" stroke="#3d6b4a" stroke-width="0.8"/>
+    <!-- Étoiles déco -->
+    <circle cx="115" cy="55" r="3" fill="rgba(201,168,76,0.6)"/>
+    <circle cx="40" cy="65" r="4" fill="rgba(201,168,76,0.4)"/>
+    <circle cx="120" cy="80" r="2" fill="rgba(107,158,120,0.5)"/>
+  </svg>`,
+
+  level3: `<svg width="170" height="145" viewBox="0 0 170 145" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="85" cy="133" rx="60" ry="9" fill="rgba(201,168,76,0.1)"/>
+    <!-- Fleur centrale -->
+    <circle cx="85" cy="70" r="18" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1.5"/>
+    <circle cx="85" cy="70" r="10" fill="rgba(201,168,76,0.6)"/>
+    <!-- Pétales -->
+    <ellipse cx="85" cy="38" rx="9" ry="16" fill="rgba(228,168,130,0.5)" stroke="#c4784a" stroke-width="1"/>
+    <ellipse cx="85" cy="102" rx="9" ry="16" fill="rgba(228,168,130,0.5)" stroke="#c4784a" stroke-width="1"/>
+    <ellipse cx="53" cy="70" rx="16" ry="9" fill="rgba(228,168,130,0.5)" stroke="#c4784a" stroke-width="1"/>
+    <ellipse cx="117" cy="70" rx="16" ry="9" fill="rgba(228,168,130,0.5)" stroke="#c4784a" stroke-width="1"/>
+    <ellipse cx="62" cy="47" rx="9" ry="16" fill="rgba(228,168,130,0.4)" stroke="#c4784a" stroke-width="1" transform="rotate(-45 62 47)"/>
+    <ellipse cx="108" cy="47" rx="9" ry="16" fill="rgba(228,168,130,0.4)" stroke="#c4784a" stroke-width="1" transform="rotate(45 108 47)"/>
+    <ellipse cx="62" cy="93" rx="9" ry="16" fill="rgba(228,168,130,0.4)" stroke="#c4784a" stroke-width="1" transform="rotate(45 62 93)"/>
+    <ellipse cx="108" cy="93" rx="9" ry="16" fill="rgba(228,168,130,0.4)" stroke="#c4784a" stroke-width="1" transform="rotate(-45 108 93)"/>
+    <!-- Tige + feuilles -->
+    <path d="M85 88 Q85 120 85 130" stroke="#3d6b4a" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M85 108 Q70 103 65 110" stroke="#3d6b4a" stroke-width="1.2" fill="none"/>
+    <path d="M65 110 Q70 108 75 115" fill="rgba(107,158,120,0.5)" stroke="#3d6b4a" stroke-width="0.8"/>
+  </svg>`,
+
+  level4: `<svg width="160" height="145" viewBox="0 0 160 145" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="80" cy="133" rx="55" ry="9" fill="rgba(107,158,120,0.1)"/>
+    <!-- Mandala / symbole expert -->
+    <circle cx="80" cy="68" r="50" stroke="rgba(107,158,120,0.2)" stroke-width="1" fill="none" stroke-dasharray="4,4"/>
+    <circle cx="80" cy="68" r="38" stroke="rgba(196,120,74,0.2)" stroke-width="1" fill="none" stroke-dasharray="2,6"/>
+    <circle cx="80" cy="68" r="26" fill="rgba(107,158,120,0.1)" stroke="#6b9e78" stroke-width="1.5"/>
+    <circle cx="80" cy="68" r="12" fill="rgba(201,168,76,0.4)" stroke="#c9a84c" stroke-width="1.5"/>
+    <!-- Points cardinaux -->
+    <circle cx="80" cy="20" r="5" fill="rgba(107,158,120,0.6)"/>
+    <circle cx="80" cy="116" r="5" fill="rgba(107,158,120,0.6)"/>
+    <circle cx="32" cy="68" r="5" fill="rgba(196,120,74,0.6)"/>
+    <circle cx="128" cy="68" r="5" fill="rgba(196,120,74,0.6)"/>
+    <!-- Points diagonaux -->
+    <circle cx="46" cy="34" r="3.5" fill="rgba(201,168,76,0.6)"/>
+    <circle cx="114" cy="34" r="3.5" fill="rgba(201,168,76,0.6)"/>
+    <circle cx="46" cy="102" r="3.5" fill="rgba(201,168,76,0.6)"/>
+    <circle cx="114" cy="102" r="3.5" fill="rgba(201,168,76,0.6)"/>
+    <!-- Petites lignes rayonnantes -->
+    <line x1="80" y1="25" x2="80" y2="42" stroke="#6b9e78" stroke-width="1"/>
+    <line x1="80" y1="94" x2="80" y2="111" stroke="#6b9e78" stroke-width="1"/>
+    <line x1="37" y1="68" x2="54" y2="68" stroke="#c4784a" stroke-width="1"/>
+    <line x1="106" y1="68" x2="123" y2="68" stroke="#c4784a" stroke-width="1"/>
+  </svg>`,
+
+  final: `<svg width="200" height="170" viewBox="0 0 200 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="100" cy="158" rx="70" ry="11" fill="rgba(201,168,76,0.15)"/>
+    <!-- Coupe trophée stylisée -->
+    <path d="M70 50 Q65 90 80 110 Q90 120 100 120 Q110 120 120 110 Q135 90 130 50Z" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1.5"/>
+    <!-- Anse gauche -->
+    <path d="M70 55 Q50 55 48 75 Q48 90 70 85" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <!-- Anse droite -->
+    <path d="M130 55 Q150 55 152 75 Q152 90 130 85" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <!-- Pied -->
+    <rect x="88" y="120" width="24" height="16" rx="3" fill="rgba(201,168,76,0.4)" stroke="#c9a84c" stroke-width="1.2"/>
+    <rect x="78" y="136" width="44" height="8" rx="4" fill="rgba(201,168,76,0.5)" stroke="#c9a84c" stroke-width="1.2"/>
+    <!-- Étoile dans la coupe -->
+    <path d="M100 68 L103 78 L114 78 L105 84 L108 94 L100 88 L92 94 L95 84 L86 78 L97 78Z" fill="rgba(201,168,76,0.8)" stroke="#c9a84c" stroke-width="0.8"/>
+    <!-- Pétales déco autour -->
+    <circle cx="42" cy="45" r="6" fill="rgba(107,158,120,0.4)" stroke="#6b9e78" stroke-width="1"/>
+    <circle cx="158" cy="45" r="6" fill="rgba(107,158,120,0.4)" stroke="#6b9e78" stroke-width="1"/>
+    <circle cx="35" cy="70" r="4" fill="rgba(228,168,130,0.5)"/>
+    <circle cx="165" cy="70" r="4" fill="rgba(228,168,130,0.5)"/>
+    <!-- Sparkles -->
+    <line x1="52" y1="30" x2="52" y2="20" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="47" y1="25" x2="57" y2="25" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="148" y1="30" x2="148" y2="20" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="143" y1="25" x2="153" y2="25" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`
+};
+
+// ==============================
+// QUIZ DATA — QUESTIONS COMPLÈTES
+// ==============================
+const LEVELS = [
+  {
+    id: 1, name: "Débutant·e", emoji: "🌱",
+    colorTag: "#4a8c5c", bgTag: "#e8f5ec",
+    intro: "On commence en douceur ! Ces questions portent sur la reconnaissance des trois grandes dermatoses et leurs mécanismes de base. Aucun piège ici — juste les fondamentaux indispensables.",
+    debriefTitle: "📖 Ce qu'il faut retenir du Niveau 1",
+    debrief: [
+      "L'acné, l'eczéma et le psoriasis sont trois maladies très différentes : origines, mécanismes et traitements ne se ressemblent pas, même si la peau souffre dans les trois cas.",
+      "La peau est un émonctoire (organe éliminateur) en naturopathie. Quand le foie et l'intestin sont surchargés, la peau peut 'déborder'. C'est pourquoi l'approche naturopathique traite toujours l'ensemble du terrain.",
+      "Le psoriasis n'est pas contagieux : répéter cette information autour de vous aide à réduire la stigmatisation que vivent les personnes atteintes au quotidien."
+    ],
+    supplements: {
+      title: "Compléments de base pour la santé cutanée",
+      items: [
+        { label: "Zinc bisglycinate", desc: "Minéral essentiel pour la cicatrisation et la régulation du sébum.", placeholder: "[Marque à compléter]" },
+        { label: "Probiotiques souches cutanées", desc: "Pour soutenir l'axe intestin-peau dès le départ.", placeholder: "[Laboratoire à compléter]" },
+        { label: "Oméga-3 EPA/DHA", desc: "Anti-inflammatoires naturels indispensables.", placeholder: "[Marque à compléter]" }
+      ]
+    },
+    questions: [
+      {
+        text: "L'acné est principalement due à quel phénomène ?",
+        options: ["Un manque de vitamines uniquement","Une obstruction des follicules pileux combinée à la bactérie Cutibacterium acnes","Une allergie cutanée systématique","Trop de douches ou de savon"],
+        correct: 1,
+        ok: "✅ Parfait ! L'acné résulte d'un trio : excès de sébum, kératinisation anormale du follicule, et prolifération de C. acnes en milieu anaérobie. C'est cette combinaison qui crée le bouton.",
+        ko: "❌ Pas tout à fait. L'acné n'est pas une simple allergie ni un problème d'hygiène. C'est une obstruction du follicule pileux où la bactérie Cutibacterium acnes prolifère, déclenchant l'inflammation.",
+        encourage: "Bonne question pour commencer — ne vous découragez pas, les bases vont s'ancrer naturellement !"
+      },
+      {
+        text: "Le psoriasis est une maladie :",
+        options: ["Infectieuse et contagieuse au contact","Auto-immune chronique avec accélération du renouvellement cellulaire cutané","Causée uniquement par le stress chronique","Purement héréditaire, sans facteur déclenchant"],
+        correct: 1,
+        ok: "✅ Exact ! Dans le psoriasis, le système immunitaire s'emballe et accélère le cycle de renouvellement des cellules (3-5 jours au lieu de 28). Il n'est absolument pas contagieux.",
+        ko: "❌ Le psoriasis est une maladie auto-immune — impossible de l'attraper d'une autre personne. Le système immunitaire attaque les propres cellules cutanées, causant un renouvellement accéléré visible sous forme de plaques.",
+        encourage: "Le psoriasis est souvent mal compris — vous apprenez quelque chose d'important pour aider les autres aussi !"
+      },
+      {
+        text: "En naturopathie, l'acné est souvent associée à un déséquilibre de :",
+        options: ["Les reins et les poumons","Le foie et l'intestin (émonctoires principaux)","La rate et le pancréas","Les glandes salivaires"],
+        correct: 1,
+        ok: "✅ Bravo ! En naturopathie, la peau est un émonctoire secondaire. Quand le foie (qui filtre les hormones et toxines) et l'intestin (microbiote) sont surchargés, la peau prend le relais. D'où l'acné !",
+        ko: "❌ En naturopathie, le foie et l'intestin sont les émonctoires directement liés à l'acné. Le foie filtre les androgènes et les toxines ; l'intestin abrite le microbiome qui influence la peau. On y reviendra !",
+        encourage: "Le concept d'émonctoires est central en naturopathie — vous faites bien de l'explorer !"
+      },
+      {
+        text: "Quel aliment est reconnu pour son action anti-inflammatoire bénéfique pour la peau ?",
+        options: ["Le sucre blanc raffiné","Les charcuteries et viandes transformées","Les poissons gras riches en oméga-3 (sardines, saumon, maquereau)","Les sodas et jus de fruits industriels"],
+        correct: 2,
+        ok: "✅ Excellent ! Les oméga-3 (EPA et DHA) présents dans les poissons gras ont une action anti-inflammatoire bien documentée. Ils modulent la production de prostaglandines pro-inflammatoires et soutiennent l'intégrité membranaire des cellules cutanées.",
+        ko: "❌ Le sucre, les charcuteries et les sodas sont au contraire des facteurs aggravants de l'inflammation cutanée. Ce sont les oméga-3 des poissons gras qui ont prouvé leur action bénéfique sur la peau.",
+        encourage: "L'alimentation est votre premier médicament — gardez cette idée en tête !"
+      }
+    ],
+    retryQuestions: [
+      {
+        text: "PIÈGE : Un ami vous dit 'L'acné c'est parce que tu ne te laves pas assez le visage'. Que lui répondez-vous ?",
+        options: ["'Tu as raison, il faut se laver 5 fois par jour'","'L'acné est causée par une obstruction folliculaire et une bactérie, pas par un manque d'hygiène'","'Oui, c'est aussi à cause du chocolat forcément'","'Les dermatologues ne savent pas encore vraiment pourquoi'"],
+        correct: 1,
+        ok: "✅ Exactement ! Se laver trop agressivement aggrave même l'acné en irritant la peau. La cause réelle est microbiologique et hormonale.",
+        ko: "❌ Non — l'acné n'est pas liée à un manque d'hygiène. Une toilette excessive peut même aggraver les choses en détruisant le film hydrolipidique protecteur de la peau.",
+        encourage: "Corriger les idées reçues fait partie de l'éducation santé — vous y êtes presque !"
+      },
+      {
+        text: "PIÈGE : 'Le psoriasis, j'évite de prêter mes serviettes pour ne pas contaminer ma famille.' Cette précaution est-elle justifiée ?",
+        options: ["Oui, le psoriasis se transmet par contact cutané","Oui, les squames sont infectieuses","Non, le psoriasis est une maladie auto-immune absolument non contagieuse","Seulement chez les enfants immunodéprimés"],
+        correct: 2,
+        ok: "✅ Parfait ! Aucune précaution de ce type n'est nécessaire. Le psoriasis est une dérégulation du système immunitaire, pas une infection. Partager une serviette ne risque rien à personne.",
+        ko: "❌ Cette précaution est inutile et malheureusement elle renforce la stigmatisation. Le psoriasis ne se transmet par aucune voie — c'est une maladie auto-immune.",
+        encourage: "Déconstruire les mythes sur les maladies de peau aide vraiment les personnes qui en souffrent — continuez !"
+      },
+      {
+        text: "PIÈGE : Lequel de ces aliments est le PLUS bénéfique pour la peau inflammatoire ?",
+        options: ["Un verre de lait demi-écrémé tous les matins","Un soda sans sucre (édulcorants)","Des sardines à l'huile d'olive","Des biscuits industriels 'enrichis en vitamines'"],
+        correct: 2,
+        ok: "✅ Les sardines cumulent oméga-3 anti-inflammatoires, vitamine D et sélénium — un concentré de bienfaits pour la peau !",
+        ko: "❌ Le lait peut stimuler IGF-1 (aggravant l'acné), les édulcorants perturbent le microbiome, et les biscuits industriels apportent sucres et additifs pro-inflammatoires. Les sardines sont les vraies championnes ici !",
+        encourage: "Les vrais super-aliments sont souvent les plus simples — vous le savez maintenant !"
+      }
+    ]
+  },
+
+  {
+    id: 2, name: "Curieux·se", emoji: "🔍",
+    colorTag: "#b36a00", bgTag: "#fff3e0",
+    intro: "On entre dans le vif du sujet : mécanismes biologiques, rôle de l'alimentation, nutriments clés. Vous allez comprendre pourquoi votre peau réagit ainsi — et ce que vous pouvez commencer à changer.",
+    debriefTitle: "📖 Ce qu'il faut retenir du Niveau 2",
+    debrief: [
+      "L'index glycémique des aliments influence directement les hormones (insuline, IGF-1) qui stimulent la production de sébum. Adopter une alimentation à bas IG est l'une des interventions les plus efficaces contre l'acné.",
+      "La vitamine D est bien plus qu'une 'vitamine des os' : c'est un puissant immunomodulateur. Son déficit est fréquent dans les pays à faible ensoleillement et aggrave souvent le psoriasis et l'eczéma.",
+      "L'eczéma de contact et l'eczéma atopique sont deux maladies distinctes : identifier laquelle vous concerne est la première étape du traitement. Un patch-test chez un dermatologue ou allergologue est recommandé.",
+      "Le microbiome intestinal et la peau dialoguent en permanence — c'est l'axe intestin-peau. Prendre soin de son microbiote, c'est prendre soin de sa peau."
+    ],
+    supplements: {
+      title: "Compléments ciblés — Niveau intermédiaire",
+      items: [
+        { label: "Vitamine D3 + K2", desc: "Immunomodulation et anti-inflammation. Dosage à adapter selon bilan sanguin.", placeholder: "[Marque à compléter]" },
+        { label: "Zinc bisglycinate (forme hautement assimilable)", desc: "Inhibe la 5α-réductase, réduit C. acnes.", placeholder: "[Laboratoire à compléter]" },
+        { label: "Huile de bourrache (GLA)", desc: "Restaure la barrière lipidique, anti-inflammatoire dans l'eczéma.", placeholder: "[Marque à compléter]" },
+        { label: "Prébiotiques + probiotiques multi-souches", desc: "Soutien de l'axe intestin-peau.", placeholder: "[Laboratoire à compléter]" }
+      ]
+    },
+    questions: [
+      {
+        text: "L'index glycémique (IG) élevé d'un aliment peut aggraver l'acné car :",
+        options: ["Il assèche la peau directement","Il augmente l'insuline et l'IGF-1 qui stimulent les androgènes et la production de sébum","Il colmate les pores de l'extérieur","Il détruit les bonnes bactéries du visage"],
+        correct: 1,
+        ok: "✅ Excellent ! Un IG élevé → pic d'insuline → hausse de l'IGF-1 → stimulation des androgènes → excès de sébum → acné. C'est une chaîne bien documentée depuis l'étude australienne de 2007 (Smith et al.).",
+        ko: "❌ Ce n'est pas direct sur la peau. Le sucre agit de l'intérieur : il provoque un pic d'insuline qui stimule l'IGF-1, lequel stimule les androgènes responsables de l'excès de sébum. L'acné vient de l'intérieur !",
+        encourage: "La connexion alimentation-peau est fascinante — vous commencez à voir les liens !"
+      },
+      {
+        text: "La vitamine D joue quel rôle dans les maladies cutanées inflammatoires ?",
+        options: ["Aucun rôle, elle ne concerne que la solidité des os","Elle module le système immunitaire et régule la différenciation des kératinocytes ; son déficit est fréquent dans le psoriasis et l'eczéma","Elle augmente la production de mélanine pour protéger la peau","Elle sèche les lésions acnéiques"],
+        correct: 1,
+        ok: "✅ Parfait ! La vitamine D est un puissant immunomodulateur (elle régule la réponse Th1/Th2) et contrôle la maturation des cellules cutanées. Son déficit est significativement plus fréquent chez les patients atteints d'eczéma et de psoriasis.",
+        ko: "❌ La vitamine D va bien au-delà des os ! C'est une hormone-vitamine qui module finement le système immunitaire. Dans l'eczéma (réponse Th2 exacerbée) et le psoriasis (réponse Th1/Th17), son action régulatrice est précieuse.",
+        encourage: "La vitamine D est souvent sous-estimée — maintenant vous savez pourquoi elle compte autant !"
+      },
+      {
+        text: "L'eczéma de contact diffère de l'eczéma atopique parce que :",
+        options: ["Il ne provoque jamais de démangeaisons","Il est déclenché par un allergène ou irritant externe précis, identifiable par patch-test","Il ne touche jamais les mains","Il est dû à un virus cutané"],
+        correct: 1,
+        ok: "✅ Bravo ! L'eczéma de contact est une réaction à un allergène ou irritant spécifique (nickel, parfum, caoutchouc, conservateurs…). Le patch-test en dermatologie permet d'identifier précisément le coupable.",
+        ko: "❌ Les deux types d'eczéma provoquent des démangeaisons. Ce qui les distingue, c'est la cause : l'eczéma de contact réagit à un élément précis de l'environnement (bijou, produit ménager, cosmétique), identifiable par patch-test.",
+        encourage: "Identifier le bon type d'eczéma est la clé pour trouver la bonne solution — vous avancez bien !"
+      },
+      {
+        text: "Quel lien scientifique existe entre le psoriasis et le microbiome intestinal ?",
+        options: ["Aucun — le psoriasis est purement cutané","Des études montrent une dysbiose fréquente avec moins de bactéries anti-inflammatoires (ex : Faecalibacterium prausnitzii)","Le microbiome intestinal n'influence que l'eczéma","Le psoriasis crée la dysbiose mais pas l'inverse"],
+        correct: 1,
+        ok: "✅ Exact ! L'axe intestin-peau est bien documenté. Dans le psoriasis, on observe fréquemment une dysbiose avec réduction de bactéries anti-inflammatoires comme F. prausnitzii. Soutenir le microbiome fait partie des approches naturopathiques du psoriasis.",
+        ko: "❌ L'intestin et la peau dialoguent en permanence — c'est l'axe intestin-peau. Dans le psoriasis, des chercheurs ont mis en évidence une dysbiose caractéristique. Ce n'est pas une coïncidence, c'est une piste thérapeutique sérieuse.",
+        encourage: "L'axe intestin-peau est l'une des découvertes les plus prometteuses de ces 10 dernières années — fascinant, non ?"
+      }
+    ],
+    retryQuestions: [
+      {
+        text: "PIÈGE : 'Le chocolat cause l'acné' — est-ce scientifiquement exact ?",
+        options: ["Oui, le chocolat en lui-même cause directement l'acné","Non — c'est le sucre et le lait dans le chocolat industriel qui aggravent l'acné, pas le cacao pur","Oui, la théobromine obstrue les pores","Non, aucun aliment n'influence jamais l'acné"],
+        correct: 1,
+        ok: "✅ Nuance importante ! Le cacao pur (fèves, chocolat noir 85%+) n'est pas problématique. C'est le sucre (IG élevé) et le lait (IGF-1) des chocolats industriels qui aggravent l'acné.",
+        ko: "❌ Le mythe du chocolat mérite d'être nuancé. Le cacao lui-même est riche en antioxydants. C'est le sucre (qui fait monter l'insuline) et le lait (qui stimule IGF-1) contenus dans le chocolat au lait industriel qui posent problème.",
+        encourage: "La nuance est essentielle en naturopathie — vous progressez vraiment !"
+      },
+      {
+        text: "PIÈGE : Un patient atteint d'eczéma chronique sévère vous demande s'il doit prendre de la vitamine D. Quelle est la meilleure réponse ?",
+        options: ["Non, la vitamine D ne sert à rien pour la peau","Oui, mais commencer par faire doser le 25-OH-D3 sanguin avant de supplémenter","Prendre 200 UI par jour suffit pour tout le monde","La vitamine D est dangereuse, déconseillée dans l'eczéma"],
+        correct: 1,
+        ok: "✅ Parfait ! Le dosage sanguin (25-OH-D3) est indispensable avant toute supplémentation. En cas de déficit avéré, la supplémentation peut apporter un bénéfice réel dans l'eczéma. La dose optimale varie selon les individus.",
+        ko: "❌ Supplémenter en vitamine D sans dosage préalable n'est pas recommandé. La prise en charge idéale : faire un bilan sanguin (25-OH-D3), identifier le déficit et adapter la dose. Elle peut être précieuse dans l'eczéma mais le suivi est important.",
+        encourage: "La personnalisation est l'essence même de la naturopathie — vous adoptez le bon réflexe !"
+      },
+      {
+        text: "PIÈGE : Lequel de ces aliments protège le mieux le microbiome intestinal bénéfique pour la peau ?",
+        options: ["Les édulcorants artificiels (aspartame, sucralose)","Les légumes lactofermentés (choucroute crue, kimchi, kéfir)","Les antibiotiques en prévention","Les aliments ultra-transformés enrichis en probiotiques"],
+        correct: 1,
+        ok: "✅ Les aliments lactofermentés sont de vrais cadeaux pour le microbiome ! Choucroute crue, kimchi, kéfir, kombucha apportent des bactéries vivantes et des prébiotiques naturels bien supérieurs aux probiotiques industriels pasteurisés.",
+        ko: "❌ Les édulcorants perturbent le microbiome, les aliments ultra-transformés l'appauvrissent, et les antibiotiques l'éliminent ! Ce sont les aliments lactofermentés traditionnels qui nourrissent et diversifient vraiment la flore intestinale.",
+        encourage: "Votre cuisine peut devenir votre meilleure pharmacie — gardez cette philosophie !"
+      }
+    ]
+  },
+
+  {
+    id: 3, name: "Éclairé·e", emoji: "✨",
+    colorTag: "#ad1457", bgTag: "#fce4ec",
+    intro: "Vous maîtrisez les bases et les mécanismes. Place maintenant aux plantes, aux protocoles naturopathiques concrets et aux outils du quotidien. Ce que vous pouvez faire — et pourquoi ça fonctionne.",
+    debriefTitle: "📖 Ce qu'il faut retenir du Niveau 3",
+    debrief: [
+      "La phytothérapie cutanée repose sur des plantes aux actions spécifiques et documentées : le calendula cicatrise et apaise, le curcuma module NF-κB (la 'commande' de l'inflammation), l'aloe vera hydrate et régénère.",
+      "La cohérence cardiaque (méthode 365 : 3 fois/jour, 6 respirations/min, 5 minutes) est l'un des outils les plus efficaces pour réduire le cortisol — hormone qui aggrave acné, eczéma et psoriasis. Gratuit et immédiat.",
+      "Le protocole d'éviction-réintroduction alimentaire (4-6 semaines) permet d'identifier vos déclencheurs personnels. Les plus fréquents dans l'eczéma atopique : protéines de lait de vache, œufs, gluten, arachides.",
+      "La photothérapie UV-B est reconnue médicalement pour le psoriasis. Mais une exposition solaire modérée et régulière (15-20 min/jour sur les bras) peut déjà apporter des bénéfices, en produisant vitamine D et en modérant l'immunité."
+    ],
+    supplements: {
+      title: "Phytothérapie & soins cutanés naturels",
+      items: [
+        { label: "Curcuma + pipérine (biodisponible)", desc: "Action anti-NF-κB puissante. La pipérine augmente l'absorption de 2000%.", placeholder: "[Marque à compléter]" },
+        { label: "Huile de calendula bio (application locale)", desc: "Cicatrisante, apaisante, anti-inflammatoire cutanée.", placeholder: "[Marque à compléter]" },
+        { label: "Gel d'aloe vera pur (sans alcool ni parfum)", desc: "Hydratation et régénération des peaux eczémateuses.", placeholder: "[Marque à compléter]" },
+        { label: "Nettoyant visage doux surgras", desc: "Sans SLS ni parfum — pour ne pas aggraver les dermatoses.", placeholder: "[Produit à compléter]" }
+      ]
+    },
+    questions: [
+      {
+        text: "Le curcuma est utilisé dans les dermatoses inflammatoires principalement pour :",
+        options: ["Colorer la peau en jaune de façon visible","Inhiber NF-κB, le facteur de transcription central de l'inflammation","Stimuler la production de sébum régulateur","Agir comme antihistaminique direct"],
+        correct: 1,
+        ok: "✅ Excellent ! La curcumine inhibe NF-κB, réduisant ainsi les cytokines pro-inflammatoires (IL-1β, TNF-α, IL-6) impliquées dans l'eczéma et le psoriasis. Associée à la pipérine du poivre noir, sa biodisponibilité augmente drastiquement.",
+        ko: "❌ Le curcuma n'a pas d'effet colorant cutané à doses nutritionnelles. Son action principale est moléculaire : il inhibe NF-κB, le 'chef d'orchestre' de l'inflammation, réduisant les cytokines inflammatoires responsables des poussées.",
+        encourage: "La phytothérapie moléculaire est aussi sérieuse que la pharmacologie — vous l'apprenez ici !"
+      },
+      {
+        text: "La cohérence cardiaque peut aider les dermatoses car elle :",
+        options: ["Agit directement sur les bactéries cutanées C. acnes","Réduit le cortisol, hormone du stress qui aggrave l'inflammation cutanée et la séborrhée","Remplace les crèmes hydratantes","Améliore l'absorption cutanée des actifs"],
+        correct: 1,
+        ok: "✅ Parfait ! La cohérence cardiaque (5 min, 6 resp/min, 3×/jour) réduit measurably le cortisol. Or le cortisol aggrave l'acné (stimule les glandes sébacées), l'eczéma et le psoriasis (amplifie la réponse inflammatoire). Un outil simple, gratuit et puissant !",
+        ko: "❌ La cohérence cardiaque agit sur l'axe stress-inflammation. Le cortisol chronique est un facteur aggravant majeur des trois dermatoses. En abaissant ce cortisol, on réduit les poussées inflammatoires — sans médicament.",
+        encourage: "Votre respiration est l'un de vos meilleurs alliés santé — utilisez-la tous les jours !"
+      },
+      {
+        text: "La plante médicinale Calendula officinalis est indiquée en application locale car elle possède :",
+        options: ["Des propriétés stimulantes pour la mélanine","Des propriétés cicatrisantes, anti-inflammatoires et légèrement antibactériennes grâce à ses triterpènes et flavonoïdes","Un principe actif antibiotique puissant","Des propriétés exfoliantes acides"],
+        correct: 1,
+        ok: "✅ Le calendula est une référence en phytothérapie cutanée. Ses triterpènes (calendulosides) et flavonoïdes exercent une triple action : cicatrisante, anti-inflammatoire et légèrement antimicrobienne. Bien toléré même sur les peaux atopiques fragiles.",
+        ko: "❌ Le calendula n'est pas un antibiotique et n'agit pas sur la mélanine. Son action est douce mais réelle : cicatrisante, apaisante et légèrement anti-inflammatoire. C'est l'une des plantes les plus sûres pour les peaux sensibles et eczémateuses.",
+        encourage: "Les remèdes de grand-mère ont parfois une science solide derrière eux — le calendula en est la preuve !"
+      },
+      {
+        text: "Le protocole d'éviction-réintroduction alimentaire dure généralement :",
+        options: ["3 jours maximum","4 à 6 semaines d'éviction des aliments suspects, puis réintroduction un par un","Une seule journée de jeûne","Un an complet sans les aliments suspects"],
+        correct: 1,
+        ok: "✅ Le protocole d'éviction-réintroduction nécessite 4 à 6 semaines d'éviction stricte (pour vider les anticorps et calmer l'inflammation), puis la réintroduction progressive, un aliment à la fois, en observant les réactions pendant 72h à chaque fois.",
+        ko: "❌ Ce protocole demande de la patience ! 3 jours sont insuffisants pour vider les anticorps alimentaires circulants. Il faut 4 à 6 semaines d'éviction stricte, puis une réintroduction méthodique pour identifier précisément les aliments déclencheurs.",
+        encourage: "La patience est une vertu en naturopathie — les résultats durables prennent du temps !"
+      }
+    ],
+    retryQuestions: [
+      {
+        text: "PIÈGE : 'Je prends du curcuma en poudre dans mes plats tous les jours — c'est suffisant pour ses effets anti-inflammatoires.' Vrai ou faux ?",
+        options: ["Vrai, le curcuma en cuisine est pleinement bioactif","Faux — la curcumine a une très faible biodisponibilité seule. Elle nécessite de la pipérine (poivre noir) ou une formulation liposomale pour être absorbée efficacement","Vrai, l'association avec les graisses alimentaires suffit complètement","Faux — le curcuma cuit perd tous ses principes actifs"],
+        correct: 1,
+        ok: "✅ Exactement ! La curcumine pure a une biodisponibilité de moins de 1%. La pipérine du poivre noir l'augmente de ~2000%. En complément, des formulations spécifiques (liposomales, phospholipidiques) sont encore plus efficaces.",
+        ko: "❌ Le curcuma alimentaire apporte de la couleur mais peu d'effets thérapeutiques. Pour une action anti-inflammatoire réelle, la curcumine doit être associée à la pipérine (poivre noir) ou sous forme liposomale — sinon elle n'est presque pas absorbée.",
+        encourage: "Connaître la biodisponibilité des actifs naturels change tout à leur efficacité — vous apprenez bien !"
+      },
+      {
+        text: "PIÈGE : Une personne atteinte d'eczéma atopique veut tenter l'éviction des laitages. Quelle est la bonne approche ?",
+        options: ["Supprimer tous les laitages définitivement sans consultation","Commencer par une période de test de 4 à 6 semaines en compensant les apports en calcium (légumineuses, amandes, sardines avec arêtes) et surveiller l'évolution avec un professionnel","Supprimer uniquement le lait mais garder les fromages","Inutile car les laitages n'influencent jamais l'eczéma"],
+        correct: 1,
+        ok: "✅ Bravo ! L'éviction de test est pertinente dans l'eczéma atopique (surtout chez l'enfant), mais elle doit être bien conduite : durée suffisante, compensation nutritionnelle et suivi professionnel pour interpréter les résultats correctement.",
+        ko: "❌ Une éviction partielle ou définitive sans protocole peut fausser les résultats et créer des carences. La bonne méthode : éviction totale sur 4-6 semaines, compensation des nutriments, puis réintroduction méthodique. Toujours avec un suivi.",
+        encourage: "La méthode rigoureuse fait toute la différence — vous avez le bon instinct !"
+      },
+      {
+        text: "PIÈGE : Parmi ces pratiques, laquelle N'aide PAS à réduire le cortisol aggravant les dermatoses ?",
+        options: ["La cohérence cardiaque 3×5 min/jour","Le yoga et la méditation de pleine conscience","Regarder les actualités anxiogènes le soir avant de dormir","La marche en nature 30 min/jour"],
+        correct: 2,
+        ok: "✅ Bien joué ! L'exposition aux actualités négatives le soir active le système nerveux sympathique et maintient un cortisol élevé. Les trois autres pratiques l'abaissent significativement.",
+        ko: "❌ Ce n'est pas la bonne réponse. C'est regarder les actualités anxiogènes le soir qui maintient le cortisol élevé. La cohérence cardiaque, le yoga et la marche en nature sont toutes des pratiques prouvées pour baisser le cortisol.",
+        encourage: "L'hygiène mentale fait partie de l'hygiène de peau — un enseignement précieux !"
+      }
+    ]
+  },
+
+  {
+    id: 4, name: "Expert·e", emoji: "🎓",
+    colorTag: "#4527a0", bgTag: "#ede7f6",
+    intro: "Niveau avancé ! Vous allez explorer la biochimie de la peau, l'approche PNIE (psycho-neuro-immuno-endocrinologie), les protocoles intégratifs et les mécanismes de fond. Pour les passionné·e·s de santé intégrative.",
+    debriefTitle: "📖 Ce qu'il faut retenir du Niveau 4 — Expert",
+    debrief: [
+      "La perméabilité intestinale (leaky gut) est un mécanisme clé dans les dermatoses chroniques. Les lipopolysaccharides (LPS) bactériens qui passent dans le sang activent des récepteurs immunitaires (TLR4) et entretiennent une inflammation systémique de bas grade qui s'exprime parfois à travers la peau.",
+      "L'approche PNIE nous enseigne que le stress psychologique active l'axe HPA (hypothalamo-hypophyso-surrénalien), libère du CRH qui déclenche la dégranulation des mastocytes cutanés via la substance P. Les rechutes de psoriasis et d'eczéma après un choc émotionnel s'expliquent ainsi.",
+      "Les céramides constituent environ 50% des lipides intercellulaires de l'épiderme. Leur déficit dans la peau atopique augmente la perte d'eau trans-épidermique (TEWL) et la perméabilité aux irritants. Les émollients riches en céramides sont essentiels dans la gestion quotidienne.",
+      "La naturopathie intégrative associe : alimentation anti-inflammatoire, soutien du microbiome, phytothérapie ciblée, gestion du stress, micronutrition et soins locaux naturels. Cette approche de terrain est complémentaire — jamais substitutive — au suivi médical."
+    ],
+    supplements: {
+      title: "Protocole avancé — Compléments expert",
+      items: [
+        { label: "L-Glutamine (5g/jour)", desc: "Restaure l'intégrité de la muqueuse intestinale (jonctions serrées). Clé dans la perméabilité intestinale.", placeholder: "[Laboratoire à compléter]" },
+        { label: "Zinc-Carnosine", desc: "Protection et régénération de la muqueuse intestinale.", placeholder: "[Marque à compléter]" },
+        { label: "Emollient riche en céramides", desc: "Restaure la barrière cutanée dans l'eczéma atopique.", placeholder: "[Produit dermatologique à compléter]" },
+        { label: "Adaptogènes (Ashwagandha, Rhodiola)", desc: "Régulation de l'axe HPA et du cortisol chronique.", placeholder: "[Marque à compléter]" },
+        { label: "Vitex agnus-castus (acné hormonale F.)", desc: "Régulation FSH/LH dans l'acné hormonale féminine.", placeholder: "[Laboratoire à compléter]" }
+      ]
+    },
+    questions: [
+      {
+        text: "La perméabilité intestinale ('leaky gut') peut aggraver les dermatoses car :",
+        options: ["Elle provoque directement des plaques sur la peau","Des fragments bactériens (LPS) passent dans le sang, activent les TLR4 immunitaires et entretiennent une inflammation systémique pouvant s'exprimer à travers la peau","Elle n'a aucun lien prouvé avec la peau","Elle cause uniquement des troubles digestifs"],
+        correct: 1,
+        ok: "✅ Remarquable ! Les lipopolysaccharides (LPS, fragments de paroi bactérienne) qui traversent une muqueuse hyperperméable activent les récepteurs TLR4 (Toll-Like Receptors), déclenchant une cascade inflammatoire de bas grade. L'axe intestin-peau est central en naturopathie avancée.",
+        ko: "❌ Le mécanisme est indirect mais réel : l'hyperperméabilité intestinale permet le passage de LPS bactériens dans la circulation sanguine. Ces fragments activent les TLR4 immunitaires, générant une inflammation systémique qui peut s'exprimer via la peau.",
+        encourage: "La connexion intestin-peau est l'une des frontières les plus passionnantes de la médecine intégrative !"
+      },
+      {
+        text: "L'approche PNIE (Psycho-Neuro-Immuno-Endocrinologie) appliquée aux dermatoses nous enseigne que :",
+        options: ["Les émotions n'ont aucun impact prouvé sur la peau","Le stress active l'axe HPA, libère du CRH et des neuropeptides (substance P) qui déclenchent la dégranulation des mastocytes cutanés, amplifiant l'inflammation","La peau est un organe isolé du cerveau","Seule la génétique détermine les maladies de peau"],
+        correct: 1,
+        ok: "✅ Excellence ! L'axe stress → HPA → CRH → mastocytes cutanés → substance P → inflammation est documenté. C'est pourquoi les rechutes de psoriasis et d'eczéma surviennent fréquemment après des chocs émotionnels. Le soma et le psyché ne font qu'un.",
+        ko: "❌ La connexion cerveau-peau est bien réelle ! Le stress active l'axe hypothalamo-hypophyso-surrénalien (HPA), libère du CRH qui déclenche la dégranulation des mastocytes cutanés via la substance P (neuropeptide). D'où les poussées après les chocs émotionnels.",
+        encourage: "La PNIE révolutionne notre vision de la santé — vous en comprenez maintenant les bases !"
+      },
+      {
+        text: "Les céramides jouent quel rôle essentiel dans la peau atopique ?",
+        options: ["Ils donnent la couleur naturelle à la peau","Ils constituent ~50% des lipides intercellulaires de l'épiderme ; leur déficit augmente la perte d'eau trans-épidermique (TEWL) et la pénétration des allergènes","Ils stimulent la croissance des poils","Ils activent la réponse immunitaire cutanée"],
+        correct: 1,
+        ok: "✅ Parfait ! Les céramides forment le 'ciment' lipidique entre les cellules de l'épiderme. Dans la peau atopique, leur ratio est altéré (déficit en céramide NP notamment), ce qui augmente la TEWL et la vulnérabilité aux irritants. Les émollients riches en céramides sont essentiels.",
+        ko: "❌ Les céramides ne sont pas des pigments ni des activateurs immunitaires. Ils forment le ciment lipidique intercellulaire de l'épiderme. Leur déficit dans la peau atopique crée une 'peau passoire' avec perte d'eau excessive et entrée des allergènes.",
+        encourage: "La biochimie cutanée révèle pourquoi les bons émollients font toute la différence — fascinant !"
+      },
+      {
+        text: "Dans un protocole naturopathique de l'acné hormonale féminine, l'association cohérente est :",
+        options: ["Antibiotiques longue durée + pilule contraceptive uniquement","Vitex agnus-castus + zinc + DIM (diindolylméthane des brassicacées) + probiotiques ciblés","Suppression totale des graisses alimentaires","Cortisone locale + antihistaminiques"],
+        correct: 1,
+        ok: "✅ Protocole naturopathique exemplaire ! Vitex module l'axe hypothalamo-hypophysaire (FSH/LH). Le DIM (issu des brassicacées : brocoli, chou) favorise un métabolisme œstrogénique sain. Le zinc inhibe la 5α-réductase. Les probiotiques soutiennent l'élimination hépatique des hormones.",
+        ko: "❌ L'approche naturopathique de l'acné hormonale féminine est multi-cibles : Vitex pour réguler l'axe hypophysaire, DIM pour le métabolisme des œstrogènes, zinc pour la DHT, probiotiques pour l'axe intestin-foie-hormones. Un protocole intégré, pas monolithique.",
+        encourage: "Les protocoles avancés demandent du temps à comprendre — vous en maîtrisez désormais la logique !"
+      }
+    ],
+    retryQuestions: [
+      {
+        text: "PIÈGE EXPERT : Pour restaurer la perméabilité intestinale dans un contexte de dermatose chronique, quel protocole est le plus cohérent ?",
+        options: ["Antibiotiques à large spectre pour 'nettoyer' l'intestin","L-Glutamine (nutrition des entérocytes) + zinc-carnosine (protection muqueuse) + probiotiques + éviction des aliments irritants (gluten, laitages si sensibilité avérée)","Jeûne hydrique de 3 jours uniquement","Laxatifs naturels quotidiens"],
+        correct: 1,
+        ok: "✅ Protocole complet et cohérent ! La L-glutamine nourrit les entérocytes et restaure les jonctions serrées. Le zinc-carnosine protège et régénère la muqueuse. Les probiotiques rétablissent la flore. L'éviction des irritants évite la re-perméabilisation.",
+        ko: "❌ Les antibiotiques détruisent le microbiome (aggravant la dysbiose), le jeûne court seul est insuffisant, et les laxatifs n'agissent pas sur la muqueuse. Le protocole ciblé : L-glutamine + zinc-carnosine + probiotiques + alimentation adaptée.",
+        encourage: "Les protocoles de restauration intestinale sont complexes mais fondamentaux — vous y êtes presque !"
+      },
+      {
+        text: "PIÈGE EXPERT : Une patiente de 35 ans a des poussées de psoriasis à chaque fois qu'elle traverse une période de stress professionnel intense. Quelle est l'explication PNIE la plus juste ?",
+        options: ["C'est une coïncidence sans lien causal","Le stress active l'axe HPA → libération de cortisol et CRH → dégranulation des mastocytes cutanés → libération de substance P et histamine → poussée psoriasique","Le stress affaiblit seulement les anticorps anti-psoriasis","Le psoriasis crée le stress, pas l'inverse"],
+        correct: 1,
+        ok: "✅ Analyse PNIE parfaite ! L'axe stress-HPA-mastocytes-substance P est le mécanisme de liaison entre le choc émotionnel et la poussée cutanée. Cette compréhension justifie l'inclusion des techniques de gestion du stress dans tout protocole naturopathique du psoriasis.",
+        ko: "❌ Le lien est causal et bidirectionnel. Le stress → cortisol + CRH → dégranulation mastocytes → substance P → inflammation cutanée. Et inversement, les lésions visibles créent un stress psychologique. Traiter l'un aide l'autre — la PNIE nous le confirme.",
+        encourage: "Vous comprenez maintenant pourquoi la naturopathie traite la personne entière, pas juste la peau !"
+      },
+      {
+        text: "PIÈGE EXPERT : Pourquoi un émollient 'classique' (vaseline seule) est-il moins efficace qu'une crème aux céramides dans l'eczéma atopique ?",
+        options: ["La vaseline est allergisante pour les peaux atopiques","La vaseline crée uniquement un film occlusif sans restaurer les lipides intercellulaires manquants (céramides) ; elle hydrate par occlusion mais ne répare pas la barrière cutanée structurellement","La vaseline accélère la prolifération bactérienne","La vaseline aggrave toujours l'eczéma"],
+        correct: 1,
+        ok: "✅ Distinction fondamentale ! La vaseline hydrate par occlusion (empêche l'évaporation) mais n'apporte pas les céramides manquants dans la peau atopique. Les émollients aux céramides restaurant structurellement la barrière cutanée, pas seulement en surface.",
+        ko: "❌ La vaseline est bien tolérée mais insuffisante structurellement. Elle crée un film protecteur qui réduit la TEWL mais ne remplace pas les céramides manquants dans la peau atopique. C'est la différence entre 'couvrir' la fuite et 'réparer' la canalisation.",
+        encourage: "La compréhension fine des mécanismes fait la différence entre une bonne et une excellente prise en charge !"
+      }
+    ]
+  }
+];
+
+// ==============================
+// STATE
+// ==============================
+let S = {
+  screen: 'intro',
+  lvl: 0,
+  qIdx: 0,
+  answered: false,
+  selected: null,
+  scores: [0,0,0,0],
+  retry: false,
+  rIdx: 0,
+  rScore: 0,
+};
+
+// ==============================
+// RENDER ENGINE
+// ==============================
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  const screens = {
+    intro: renderIntro,
+    'lvl-intro': renderLvlIntro,
+    question: renderQuestion,
+    'lvl-done': renderLvlDone,
+    'retry-intro': renderRetryIntro,
+    'retry-done': renderRetryDone,
+    final: renderFinal,
+  };
+  if (screens[S.screen]) screens[S.screen](app);
+}
+
+function ltrack() {
+  return `<div class="level-track">${LEVELS.map((l,i)=>`
+    <div class="lvl-pill ${i<S.lvl?'done':i===S.lvl?'active':''}">
+      ${l.emoji} Niv. ${l.id}
+    </div>`).join('')}</div>`;
+}
+
+// INTRO
+function renderIntro(app) {
+  app.innerHTML = `
+  <div class="card intro-card">
+    <div class="illustration float">${SVG.intro}</div>
+    <h2>Savez-vous lire le langage de votre peau ?</h2>
+    <p>
+      Acné, eczéma, psoriasis — trois mots que l'on entend souvent, et pourtant si souvent confondus. 
+      Leur origine, leurs mécanismes et leurs solutions naturelles sont radicalement différents. 
+      Et votre peau, elle, ne ment jamais.
+    </p>
+    <p>
+      Ce quiz en <strong>4 niveaux progressifs</strong> est un véritable outil éducatif : 
+      chaque question est une occasion d'apprendre, chaque erreur est expliquée, 
+      et vous ne passez au niveau suivant que lorsque vous avez tout compris. 
+      Parce que comprendre sa peau, c'est déjà commencer à la soigner.
+    </p>
+    <div class="intro-highlight">
+      💡 <strong>Règle du jeu :</strong> 4 questions par niveau. Toutes les bonnes réponses sont nécessaires pour avancer. 
+      Une erreur ? Une question reformulée vous aide à consolider. 
+      L'objectif n'est pas d'être parfait — c'est d'apprendre. 😉
+    </div>
+    <div class="btn-row center">
+      <button class="btn btn-primary" onclick="go('lvl-intro')">Commencer le voyage 🌿</button>
+    </div>
+  </div>`;
+}
+
+// LVL INTRO
+function renderLvlIntro(app) {
+  const l = LEVELS[S.lvl];
+  const svgMap = [SVG.level1, SVG.level2, SVG.level3, SVG.level4];
+  const bgs = ['rgba(107,158,120,0.15)','rgba(196,120,74,0.15)','rgba(201,168,76,0.15)','rgba(107,158,120,0.12)'];
+  app.innerHTML = `
+  ${ltrack()}
+  <div class="card level-intro-card">
+    <div class="illustration float">${svgMap[S.lvl]}</div>
+    <div class="level-badge" style="background:${bgs[S.lvl]}; border: 1.5px solid ${l.colorTag}30;">
+      <span style="font-size:2rem;">${l.emoji}</span>
+    </div>
+    <h2>Niveau ${l.id} — ${l.name}</h2>
+    <div class="level-tag" style="color:${l.colorTag};">— ${l.name} —</div>
+    <p class="desc">${l.intro}</p>
+    <div class="btn-row center">
+      <button class="btn btn-primary" onclick="startLevel()">Je suis prêt·e !</button>
+    </div>
+  </div>`;
+}
+
+// QUESTION
+function renderQuestion(app) {
+  const l = LEVELS[S.lvl];
+  const qs = S.retry ? l.retryQuestions : l.questions;
+  const q = qs[S.qIdx];
+  const total = qs.length;
+  const pct = (S.qIdx / total) * 100;
+  const letters = ['A','B','C','D'];
+
+  const opts = q.options.map((o,i)=>{
+    let cls='';
+    if(S.answered){
+      if(i===q.correct) cls='correct';
+      else if(i===S.selected) cls='wrong';
+    }
+    return `<button class="opt ${cls}" onclick="pick(${i})" ${S.answered?'disabled':''}>
+      <span class="opt-letter">${letters[i]}</span>
+      <span>${o}</span>
+    </button>`;
+  }).join('');
+
+  let feedback='', encourage='';
+  if(S.answered){
+    const ok = S.selected===q.correct;
+    feedback=`<div class="feedback ${ok?'ok':'ko'}"><strong>${ok?q.ok:q.ko}</strong></div>`;
+    if(!ok) encourage=`<div class="encourage"><span class="enc-icon">💪</span>${q.encourage}</div>`;
+  }
+
+  let nextBtn='';
+  if(S.answered) nextBtn=`<div class="btn-row"><button class="btn btn-sage" onclick="nextQ()">Continuer →</button></div>`;
+
+  const retryBadge = S.retry ? `<div class="q-retry-badge">⚡ Question de rattrapage</div>` : '';
+
+  app.innerHTML=`
+  ${ltrack()}
+  <div class="card">
+    ${retryBadge}
+    <div class="q-meta">
+      <div class="q-num">Question ${S.qIdx+1} / ${total}</div>
+      <div class="q-tag" style="background:${l.bgTag};color:${l.colorTag};">${l.emoji} ${l.name}</div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+    <div class="q-text">${q.text}</div>
+    <div class="options">${opts}</div>
+    ${feedback}
+    ${encourage}
+    ${nextBtn}
+  </div>`;
+}
+
+// LEVEL DONE
+function renderLvlDone(app) {
+  const l = LEVELS[S.lvl];
+  const score = S.scores[S.lvl];
+  const total = l.questions.length;
+  const perfect = score === total;
+
+  const debriefItems = l.debrief.map(d=>`<p>◆ ${d}</p>`).join('');
+  const suppItems = l.supplements.items.map(s=>`
+    <li>
+      <div><strong>${s.label}</strong> — ${s.desc}<br>
+      <span class="supp-placeholder" title="Cliquez pour ajouter votre recommandation produit">${s.placeholder}</span></div>
+    </li>`).join('');
+
+  let msg='', nextBtn='';
+  if(perfect){
+    msg=`<div class="encourage" style="background:rgba(74,140,92,0.12);border-color:rgba(74,140,92,0.3);color:#234d30;margin-bottom:0;">
+      <span class="enc-icon">🎉</span>Score parfait ! Vous maîtrisez ce niveau. Votre peau vous dit merci.
+    </div>`;
+    if(S.lvl < LEVELS.length-1){
+      nextBtn=`<button class="btn btn-primary" onclick="nextLevel()">Niveau ${S.lvl+2} ${LEVELS[S.lvl+1].emoji} →</button>`;
+    } else {
+      nextBtn=`<button class="btn btn-primary" onclick="go('final')">Voir mon bilan final 🏆</button>`;
+    }
+  } else {
+    msg=`<div class="encourage" style="background:rgba(201,132,58,0.1);border-color:rgba(201,132,58,0.3);color:#7a4a00;margin-bottom:0;">
+      <span class="enc-icon">📚</span>Quelques réponses à consolider ! Des questions reformulées vont vous aider à bien ancrer les notions. C'est le cœur de l'apprentissage.
+    </div>`;
+    nextBtn=`<button class="btn btn-outline" onclick="startRetry()">Questions de rattrapage →</button>`;
+  }
+
+  app.innerHTML=`
+  ${ltrack()}
+  <div class="card">
+    <div style="text-align:center; padding: 12px 0 20px;">
+      <div class="score-ring">
+        <div class="score-inner">
+          <div class="score-num">${score}/${total}</div>
+          <div class="score-of">réponses justes</div>
+        </div>
+      </div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.7rem;margin-bottom:16px;">
+        ${perfect ? '🌟 Bravo !' : '💡 Presque !'}
+      </h2>
+      ${msg}
+    </div>
+
+    <div class="debrief" style="margin-top:28px;">
+      <div class="debrief-title">📖 Ce qu'il faut retenir</div>
+      ${debriefItems}
+    </div>
+
+    <div class="supp-bubble">
+      <div class="supp-title">${l.supplements.title}</div>
+      <ul class="supp-list">${suppItems}</ul>
+    </div>
+
+    <div class="btn-row center" style="margin-top:28px;">${nextBtn}</div>
+  </div>`;
+}
+
+// RETRY INTRO
+function renderRetryIntro(app) {
+  const l = LEVELS[S.lvl];
+  app.innerHTML=`
+  ${ltrack()}
+  <div class="card" style="text-align:center;">
+    <div class="illustration float">${SVG.level2}</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:12px;">Questions de rattrapage</h2>
+    <p style="font-size:1rem;color:#555;line-height:1.75;max-width:500px;margin:0 auto 20px;">
+      Ces questions abordent les <strong>mêmes notions</strong> que le niveau ${l.id}, 
+      mais formulées différemment — avec des pièges subtils. 
+      Prenez le temps de réfléchir avant de répondre.
+    </p>
+    <div class="intro-highlight" style="text-align:left;max-width:500px;margin:0 auto 24px;">
+      🎯 Objectif : comprendre, pas juste répondre. Chaque erreur vous rapproche de la maîtrise.
+    </div>
+    <div class="btn-row center">
+      <button class="btn btn-primary" onclick="launchRetry()">Je suis prêt·e !</button>
+    </div>
+  </div>`;
+}
+
+// RETRY DONE
+function renderRetryDone(app) {
+  const l = LEVELS[S.lvl];
+  const isLast = S.lvl === LEVELS.length-1;
+  app.innerHTML=`
+  ${ltrack()}
+  <div class="card" style="text-align:center;">
+    <div style="font-size:52px;margin-bottom:16px;">🎉</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:12px;">Rattrapage accompli !</h2>
+    <p style="font-size:1rem;color:#555;line-height:1.75;margin-bottom:20px;">
+      Félicitations ! Vous avez consolidé les notions clés du <strong>Niveau ${l.id} — ${l.name}</strong>. 
+      Ces connaissances sont maintenant bien ancrées. Vous pouvez avancer avec confiance.
+    </p>
+    <div class="encourage" style="justify-content:center;background:rgba(74,140,92,0.1);border-color:rgba(74,140,92,0.3);color:#234d30;">
+      <span class="enc-icon">🌱</span>
+      L'apprentissage par l'erreur est le plus durable. Vous venez d'en faire la preuve !
+    </div>
+    <div class="btn-row center" style="margin-top:28px;">
+      ${isLast
+        ? `<button class="btn btn-primary" onclick="go('final')">Mon bilan final 🏆</button>`
+        : `<button class="btn btn-primary" onclick="nextLevel()">Niveau ${S.lvl+2} ${LEVELS[S.lvl+1].emoji} →</button>`}
+    </div>
+  </div>`;
+}
+
+// FINAL
+function renderFinal(app) {
+  const total = LEVELS.reduce((s,l)=>s+l.questions.length, 0);
+  const scored = S.scores.reduce((a,b)=>a+b, 0);
+  const pct = Math.round((scored/total)*100);
+  const medal = pct>=90?'🏆':pct>=70?'🌟':'🌱';
+  const title = pct>=90?'Vous êtes une véritable experte de la peau !'
+    :pct>=70?'Bravo, vous avez fait un beau chemin !'
+    :'Vous avez planté des graines précieuses !';
+
+  app.innerHTML=`
+  <div class="card final-card">
+    <div class="illustration float">${SVG.final}</div>
+    <span class="trophy-wrap" style="display:block;font-size:64px;margin-bottom:10px;">${medal}</span>
+    <h2>${title}</h2>
+    <div class="final-score">${scored} / ${total}</div>
+    <p style="font-size:0.85rem;color:var(--warm-grey);margin-bottom:20px;">Score global : ${pct}%</p>
+    <p class="final-msg">
+      Vous avez parcouru les 4 niveaux de ce quiz sur l'acné, l'eczéma et le psoriasis. 
+      Vous savez maintenant que la peau n'est pas qu'une enveloppe — c'est un organe de communication 
+      entre votre monde intérieur et extérieur. Elle reflète votre alimentation, votre microbiome, 
+      votre stress, vos hormones et votre histoire.
+      <br><br>
+      La naturopathie offre des outils puissants. Mais le terrain de chaque personne est unique, 
+      et les meilleures solutions sont celles qui sont personnalisées.
+    </p>
+
+    <div class="cta-box">
+      <h3>🌿 Passez à l'étape suivante</h3>
+      <p>
+        Ce quiz vous a donné les clés — mais votre peau mérite une approche sur mesure. 
+        Un·e naturopathe qualifié·e peut établir un bilan de terrain complet 
+        et vous proposer un protocole personnalisé pour <strong>acné, eczéma ou psoriasis</strong>.
+        <br><br>
+        <em>"Vous n'êtes pas un symptôme. Vous êtes une personne entière."</em>
+      </p>
+      <button class="btn btn-sage" onclick="alert('Merci de votre intérêt ! Contactez votre naturopathe pour prendre rendez-vous. 📅')">
+        📅 Prendre rendez-vous avec un·e naturopathe
+      </button>
+    </div>
+
+    <div class="btn-row center" style="margin-top:28px;">
+      <button class="btn btn-outline" onclick="resetQuiz()">🔄 Recommencer depuis le début</button>
+    </div>
+  </div>`;
+}
+
+// ==============================
+// ACTIONS
+// ==============================
+function go(screen) { S.screen=screen; render(); }
+
+function startLevel() {
+  S.qIdx=0; S.answered=false; S.selected=null; S.retry=false;
+  S.scores[S.lvl]=0;
+  S.screen='question'; render();
+}
+
+function pick(i) {
+  if(S.answered) return;
+  S.answered=true; S.selected=i;
+  const l=LEVELS[S.lvl];
+  const qs=S.retry?l.retryQuestions:l.questions;
+  if(i===qs[S.qIdx].correct){
+    if(S.retry) S.rScore++;
+    else S.scores[S.lvl]++;
+  }
+  render();
+}
+
+function nextQ() {
+  const l=LEVELS[S.lvl];
+  const qs=S.retry?l.retryQuestions:l.questions;
+  S.answered=false; S.selected=null;
+  if(S.qIdx < qs.length-1){
+    S.qIdx++;
+    S.screen='question';
+  } else {
+    if(!S.retry){
+      S.screen='lvl-done';
+    } else {
+      S.screen='retry-done';
+    }
+  }
+  render();
+}
+
+function startRetry() {
+  S.screen='retry-intro'; render();
+}
+
+function launchRetry() {
+  S.retry=true; S.qIdx=0; S.rScore=0; S.answered=false; S.selected=null;
+  S.screen='question'; render();
+}
+
+function nextLevel() {
+  S.lvl++;
+  S.screen='lvl-intro'; render();
+}
+
+function resetQuiz() {
+  S={ screen:'intro', lvl:0, qIdx:0, answered:false, selected:null, scores:[0,0,0,0], retry:false, rIdx:0, rScore:0 };
+  render();
+}
+
+// INIT
+render();
+</script>
+</body>
+</html>
