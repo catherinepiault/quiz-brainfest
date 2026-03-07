@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BrainFest — Mémoire des Couleurs</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#f7f3ec; --charcoal:#2a2520; --grey:#7a7268;
+  --grey-light:#f0ede8; --white:#fff; --sage:#3d6b4a;
+  --gold:#c9a84c; --terra:#c4784a;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { width:100%; height:100%; overflow:hidden; font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--charcoal); }
+.layout { display:flex; flex-direction:column; height:100vh; max-width:480px; margin:0 auto; }
+
+/* LANG SCREEN */
+.lang-screen { position:fixed; inset:0; background:var(--charcoal); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; z-index:100; transition:opacity 0.5s; }
+.lang-screen.hidden { opacity:0; pointer-events:none; }
+.lang-title { font-family:'Cormorant Garamond',serif; font-size:clamp(26px,6vw,38px); color:white; text-align:center; line-height:1.3; font-weight:300; }
+.lang-title em { font-style:italic; color:rgba(201,168,76,0.9); }
+.lang-sub { font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:2px; text-transform:uppercase; }
+.lang-btns { display:flex; gap:14px; }
+.lang-btn { padding:12px 28px; border-radius:50px; border:1.5px solid rgba(255,255,255,0.25); background:transparent; color:white; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:all 0.2s; }
+.lang-btn:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.5); }
+
+/* HEADER */
+.header { flex-shrink:0; background:var(--charcoal); padding:10px 18px; display:flex; align-items:center; justify-content:space-between; }
+.header-left { display:flex; flex-direction:column; gap:1px; }
+.brand-tag { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+.game-title { font-family:'Cormorant Garamond',serif; font-size:clamp(14px,3.5vw,18px); color:white; font-weight:300; }
+.game-title em { font-style:italic; color:rgba(201,168,76,0.85); }
+.header-right { display:flex; align-items:center; gap:8px; }
+.level-badge { background:rgba(255,255,255,0.1); border-radius:20px; padding:4px 12px; font-size:11px; font-weight:600; color:white; }
+.music-btn { background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:30px; height:30px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:white; }
+.lang-sw { background:rgba(255,255,255,0.1); border:none; border-radius:20px; padding:3px 9px; font-size:9px; font-weight:600; color:rgba(255,255,255,0.7); cursor:pointer; letter-spacing:1px; }
+
+/* SEQUENCE DISPLAY */
+.seq-zone { flex-shrink:0; padding:12px 18px 8px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.seq-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--grey); }
+.seq-dots { display:flex; gap:7px; flex-wrap:wrap; justify-content:center; min-height:22px; }
+.seq-dot { width:18px; height:18px; border-radius:50%; border:2px solid rgba(0,0,0,0.08); transition:transform 0.15s; }
+.seq-dot.active { transform:scale(1.4); box-shadow:0 0 12px rgba(0,0,0,0.25); }
+
+/* STATUS */
+.status-zone { flex-shrink:0; text-align:center; padding:6px 18px; min-height:40px; }
+.status-msg { font-family:'Cormorant Garamond',serif; font-size:clamp(16px,4vw,20px); font-weight:400; line-height:1.3; }
+.status-sub { font-size:11px; color:var(--grey); margin-top:2px; }
+
+/* COLOR GRID */
+.grid-zone { flex:1; display:flex; align-items:center; justify-content:center; padding:12px 18px; min-height:0; }
+.color-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:320px; }
+.color-btn {
+  aspect-ratio:1; border-radius:20px; border:3px solid rgba(255,255,255,0.4);
+  cursor:pointer; transition:transform 0.1s, box-shadow 0.1s, border-color 0.15s;
+  display:flex; align-items:center; justify-content:center;
+  font-size:clamp(20px,6vw,32px); font-weight:600;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  position:relative; overflow:hidden;
+}
+.color-btn:active { transform:scale(0.94); }
+.color-btn.flash { transform:scale(1.08); box-shadow:0 8px 28px rgba(0,0,0,0.28); border-color:rgba(255,255,255,0.85); }
+.color-btn.correct-pick { border-color:white; box-shadow:0 0 0 4px rgba(255,255,255,0.5); }
+.color-btn.wrong-pick { animation:wrongShake 0.35s ease; }
+.color-btn:disabled { cursor:default; }
+.color-name { 
+  position:absolute; bottom:8px; left:0; right:0; text-align:center;
+  font-size:clamp(10px,2.5vw,12px); font-weight:600; color:rgba(255,255,255,0.85);
+  letter-spacing:0.5px; text-shadow:0 1px 3px rgba(0,0,0,0.3);
+  text-transform:uppercase;
+}
+
+/* BOTTOM */
+.bottom-bar { flex-shrink:0; padding:10px 18px; background:var(--white); border-top:1px solid var(--grey-light); }
+.btn { width:100%; padding:13px; border-radius:50px; border:none; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.btn-dark { background:var(--charcoal); color:white; }
+.btn-sage { background:var(--sage); color:white; }
+.btn-outline { background:transparent; color:var(--sage); border:1.5px solid var(--sage); }
+
+/* RESULT */
+.result-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 18px; gap:14px; text-align:center; }
+.result-score { font-family:'Cormorant Garamond',serif; font-size:72px; font-weight:300; color:var(--charcoal); line-height:1; }
+.result-label { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--grey); }
+.result-title { font-family:'Cormorant Garamond',serif; font-size:clamp(20px,5vw,26px); font-weight:400; line-height:1.3; }
+.result-msg { font-size:13px; line-height:1.7; color:var(--grey); max-width:300px; }
+.best-badge { background:rgba(201,168,76,0.12); border:1px solid rgba(201,168,76,0.3); border-radius:20px; padding:6px 18px; font-size:12px; color:#7a5a00; font-weight:600; }
+
+/* INTRO */
+.intro-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px 18px; gap:16px; text-align:center; }
+.intro-emoji { font-size:56px; }
+.intro-title { font-family:'Cormorant Garamond',serif; font-size:clamp(22px,5vw,30px); font-weight:400; line-height:1.3; }
+.intro-title em { font-style:italic; color:var(--terra); }
+.intro-sub { font-size:13px; color:var(--grey); line-height:1.7; max-width:300px; }
+.intro-rule { background:var(--grey-light); border-radius:12px; padding:12px 16px; font-size:12px; line-height:1.7; color:var(--charcoal); max-width:320px; width:100%; }
+
+@keyframes wrongShake {
+  0%,100% { transform:translateX(0); }
+  20% { transform:translateX(-8px); }
+  40% { transform:translateX(8px); }
+  60% { transform:translateX(-5px); }
+  80% { transform:translateX(5px); }
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
+.fadein { animation:fadeUp 0.3s ease; }
+</style>
+</head>
+<body>
+
+<!-- LANG -->
+<div class="lang-screen" id="langScreen">
+  <div class="lang-title">BrainFest<br><em>Mémoire des Couleurs</em><br><span style="font-size:0.55em;font-style:normal;color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;letter-spacing:2px;text-transform:uppercase;">Memory of Colours</span></div>
+  <div class="lang-sub">Choose your language / Choisissez votre langue</div>
+  <div class="lang-btns">
+    <button class="lang-btn" onclick="setLang('fr')">🇫🇷 Français</button>
+    <button class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="header">
+    <div class="header-left">
+      <div class="brand-tag">BrainFest · <span id="hCat"></span></div>
+      <div class="game-title" id="hTitle"></div>
+    </div>
+    <div class="header-right">
+      <div class="level-badge" id="lvlBadge">Niv. 1</div>
+      <button class="lang-sw" id="langSw" onclick="showLang()"></button>
+      <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
+    </div>
+  </div>
+
+  <div class="seq-zone">
+    <div class="seq-label" id="seqLabel"></div>
+    <div class="seq-dots" id="seqDots"></div>
+  </div>
+
+  <div class="status-zone">
+    <div class="status-msg" id="statusMsg"></div>
+    <div class="status-sub" id="statusSub"></div>
+  </div>
+
+  <div class="grid-zone" id="gridZone"></div>
+
+  <div class="bottom-bar" id="bb"></div>
+</div>
+
+<script>
+// ══════════════════════════════════
+// COLORS
+// ══════════════════════════════════
+const COLORS = [
+  { id:'red',    hex:'#e05252', fr:'Rouge',  en:'Red',    emoji:'🔴' },
+  { id:'blue',   hex:'#4a7fb5', fr:'Bleu',   en:'Blue',   emoji:'🔵' },
+  { id:'green',  hex:'#4a9a5e', fr:'Vert',   en:'Green',  emoji:'🟢' },
+  { id:'yellow', hex:'#e8c44a', fr:'Jaune',  en:'Yellow', emoji:'🟡' },
+  { id:'purple', hex:'#8a5ab5', fr:'Violet', en:'Purple', emoji:'🟣' },
+  { id:'orange', hex:'#e07840', fr:'Orange', en:'Orange', emoji:'🟠' },
+];
+
+// ══════════════════════════════════
+// TRANSLATIONS
+// ══════════════════════════════════
+const T = {
+  fr: {
+    cat: 'Entraînez votre mémoire',
+    title: 'Mémoire des <em>Couleurs</em>',
+    intro_title: 'Votre mémoire a de la <em>couleur</em>',
+    intro_sub: 'Observez la séquence de couleurs, puis reproduisez-la dans l\'ordre. Chaque niveau ajoute une couleur. Jusqu\'où irez-vous ?',
+    intro_rule: '👁️ <strong>Regardez</strong> la séquence s\'allumer\n🎨 <strong>Reproduisez</strong> les couleurs dans l\'ordre\n🎤 <strong>Dites la couleur</strong> ou cliquez dessus',
+    btn_start: 'Commencer 🎨',
+    btn_replay: '🔄 Rejouer',
+    btn_share: '📤 Partager',
+    watch: 'Regardez bien...',
+    your_turn: 'À vous !',
+    your_turn_sub: 'Reproduisez la séquence',
+    voice_sub: 'Dites la couleur ou cliquez',
+    bravo: 'Bravo ! ✨',
+    next_lvl: 'Niveau suivant...',
+    wrong: 'Pas tout à fait...',
+    wrong_sub: 'La bonne couleur était',
+    seq_label: 'Séquence',
+    result_label: 'niveau atteint',
+    result_title_great: 'Mémoire exceptionnelle ! 🏆',
+    result_title_good: 'Belle performance ! 🌟',
+    result_title_ok: 'Bonne tentative ! 🌱',
+    result_msg_great: 'Votre mémoire de travail est remarquable. Les neuroscientifiques seraient impressionnés — et légèrement jaloux.',
+    result_msg_good: 'Solide ! La moyenne humaine se situe autour du niveau 7. Vous êtes au-dessus.',
+    result_msg_ok: 'La mémoire se muscle comme le reste. Revenez demain — elle sera plus forte.',
+    best: 'Meilleur score',
+    level: 'Niveau',
+    voices: ['fr-FR'],
+  },
+  en: {
+    cat: 'Train your memory',
+    title: 'Memory of <em>Colours</em>',
+    intro_title: 'Your memory is full of <em>colour</em>',
+    intro_sub: 'Watch the sequence of colours light up, then reproduce it in order. Each level adds one colour. How far will you go?',
+    intro_rule: '👁️ <strong>Watch</strong> the sequence light up\n🎨 <strong>Reproduce</strong> the colours in order\n🎤 <strong>Say the colour</strong> or click it',
+    btn_start: 'Start 🎨',
+    btn_replay: '🔄 Play again',
+    btn_share: '📤 Share',
+    watch: 'Watch carefully...',
+    your_turn: 'Your turn!',
+    your_turn_sub: 'Reproduce the sequence',
+    voice_sub: 'Say the colour or click',
+    bravo: 'Bravo! ✨',
+    next_lvl: 'Next level...',
+    wrong: 'Not quite...',
+    wrong_sub: 'The correct colour was',
+    seq_label: 'Sequence',
+    result_label: 'level reached',
+    result_title_great: 'Exceptional memory! 🏆',
+    result_title_good: 'Great performance! 🌟',
+    result_title_ok: 'Good attempt! 🌱',
+    result_msg_great: 'Your working memory is remarkable. Neuroscientists would be impressed — and slightly jealous.',
+    result_msg_good: 'Solid! The human average is around level 7. You\'re above it.',
+    result_msg_ok: 'Memory works like a muscle. Come back tomorrow — it\'ll be stronger.',
+    best: 'Best score',
+    level: 'Level',
+    voices: ['en-GB'],
+  }
+};
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let lang = 'fr';
+let G = {
+  phase: 'intro', // intro | watch | input | result
+  sequence: [],
+  inputStep: 0,
+  level: 1,
+  best: parseInt(localStorage.getItem('bf_color_best') || '0'),
+  musicOn: false,
+  audioCtx: null,
+  gainNode: null,
+  recognition: null,
+  listening: false,
+  voiceReady: false,
+};
+
+// ══════════════════════════════════
+// LANG
+// ══════════════════════════════════
+function setLang(l) {
+  lang = l;
+  document.getElementById('langScreen').classList.add('hidden');
+  document.getElementById('langSw').textContent = l==='fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+  document.getElementById('hCat').textContent = T[lang].cat;
+  document.getElementById('hTitle').innerHTML = T[lang].title;
+  initVoice();
+  render();
+}
+function showLang() { document.getElementById('langScreen').classList.remove('hidden'); }
+
+// ══════════════════════════════════
+// MUSIC — soft generative ambient
+// ══════════════════════════════════
+function initAudio() {
+  if (G.audioCtx) return;
+  G.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  G.gainNode = G.audioCtx.createGain();
+  G.gainNode.gain.value = 0;
+  G.gainNode.connect(G.audioCtx.destination);
+}
+function playTone(freq, t, dur, vol=0.06) {
+  if (!G.audioCtx || !G.musicOn) return;
+  const o = G.audioCtx.createOscillator();
+  const g = G.audioCtx.createGain();
+  o.connect(g); g.connect(G.gainNode);
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t+0.04);
+  g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.start(t); o.stop(t+dur+0.1);
+}
+function playColorSound(colorIdx) {
+  if (!G.audioCtx) return;
+  const freqs = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
+  const now = G.audioCtx.currentTime;
+  playTone(freqs[colorIdx % freqs.length], now, 0.4, 0.12);
+}
+let ambTimer = null;
+function startMusic() {
+  initAudio();
+  G.musicOn = true;
+  G.gainNode.gain.value = 0.8;
+  loopMusic();
+  document.getElementById('musicBtn').textContent = '🔇';
+}
+function stopMusic() {
+  G.musicOn = false;
+  if (G.gainNode) G.gainNode.gain.value = 0;
+  clearTimeout(ambTimer);
+  document.getElementById('musicBtn').textContent = '🎵';
+}
+function toggleMusic() { G.musicOn ? stopMusic() : startMusic(); }
+function loopMusic() {
+  if (!G.musicOn) return;
+  const now = G.audioCtx.currentTime;
+  const notes = [261.63, 329.63, 392.00, 440.00, 523.25];
+  [notes[2], notes[0], notes[4], notes[1], notes[3], notes[0]].forEach((f,i) => {
+    playTone(f, now + i*0.9, 1.1, 0.05);
+  });
+  ambTimer = setTimeout(loopMusic, 5500);
+}
+
+// ══════════════════════════════════
+// VOICE
+// ══════════════════════════════════
+function initVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  G.recognition = new SR();
+  G.recognition.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
+  G.recognition.continuous = false;
+  G.recognition.interimResults = false;
+  G.voiceReady = true;
+  // Request permission once silently
+  try {
+    G.recognition.start();
+    setTimeout(() => { try { G.recognition.stop(); } catch(e){} }, 300);
+  } catch(e){}
+}
+
+function listenOnce(onResult) {
+  if (!G.recognition || !G.voiceReady) return;
+  G.listening = true;
+  G.recognition.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
+  G.recognition.onresult = (e) => {
+    const t = e.results[0][0].transcript.toLowerCase().trim();
+    G.listening = false;
+    onResult(t);
+  };
+  G.recognition.onerror = () => { G.listening = false; };
+  G.recognition.onend = () => { G.listening = false; };
+  try { G.recognition.start(); } catch(e){}
+}
+
+function matchColor(transcript) {
+  const names = COLORS.map(c => ({ id:c.id, name: lang==='fr' ? c.fr.toLowerCase() : c.en.toLowerCase() }));
+  for (const n of names) {
+    if (transcript.includes(n.name)) return n.id;
+  }
+  return null;
+}
+
+// ══════════════════════════════════
+// SPEAK — female voice preference
+// ══════════════════════════════════
+function speak(text, onEnd) {
+  if (!window.speechSynthesis) { if(onEnd) onEnd(); return; }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
+  u.rate = 0.88;
+  u.pitch = 1.2;
+  // Female voice preference
+  const voices = window.speechSynthesis.getVoices();
+  const femaleVoice = voices.find(v =>
+    v.lang.startsWith(lang==='fr'?'fr':'en') &&
+    (v.name.toLowerCase().includes('female') ||
+     v.name.toLowerCase().includes('femme') ||
+     v.name.includes('Amélie') ||
+     v.name.includes('Marie') ||
+     v.name.includes('Samantha') ||
+     v.name.includes('Fiona') ||
+     v.name.includes('Victoria') ||
+     v.name.includes('Veena') ||
+     v.name.includes('Karen') ||
+     v.name.includes('Audrey') ||
+     v.name.includes('Julie') ||
+     v.name.includes('Léa') ||
+     v.name.includes('Alice'))
+  ) || voices.find(v => v.lang.startsWith(lang==='fr'?'fr':'en'));
+  if (femaleVoice) u.voice = femaleVoice;
+  if (onEnd) u.onend = onEnd;
+  window.speechSynthesis.speak(u);
+}
+
+// ══════════════════════════════════
+// GAME LOGIC
+// ══════════════════════════════════
+function startGame() {
+  G.phase = 'watch';
+  G.sequence = [];
+  G.level = 1;
+  G.inputStep = 0;
+  addColor();
+  render();
+  setTimeout(playSequence, 600);
+}
+
+function addColor() {
+  const idx = Math.floor(Math.random() * Math.min(COLORS.length, Math.max(2, Math.ceil(G.level / 2) + 1)));
+  G.sequence.push(idx);
+}
+
+function playSequence() {
+  G.phase = 'watch';
+  setStatus(T[lang].watch, '');
+  disableGrid(true);
+  renderSeqDots();
+  let i = 0;
+  function flashNext() {
+    if (i > 0) unflashAll();
+    if (i >= G.sequence.length) {
+      setTimeout(startInput, 500);
+      return;
+    }
+    const ci = G.sequence[i];
+    flashColor(ci);
+    playColorSound(ci);
+    // Speak color name
+    const name = lang === 'fr' ? COLORS[ci].fr : COLORS[ci].en;
+    speak(name);
+    renderSeqDots(i);
+    i++;
+    const delay = Math.max(600, 900 - G.level * 20);
+    setTimeout(flashNext, delay);
+  }
+  flashNext();
+}
+
+function startInput() {
+  G.phase = 'input';
+  G.inputStep = 0;
+  unflashAll();
+  disableGrid(false);
+  setStatus(T[lang].your_turn, T[lang].voice_sub);
+  renderSeqDots(-1);
+  // Start listening
+  listenForColor();
+}
+
+function listenForColor() {
+  if (G.phase !== 'input') return;
+  listenOnce((transcript) => {
+    const colorId = matchColor(transcript);
+    if (colorId) {
+      const idx = COLORS.findIndex(c => c.id === colorId);
+      handlePick(idx);
+    } else {
+      // retry listen
+      if (G.phase === 'input') setTimeout(listenForColor, 300);
+    }
+  });
+}
+
+function handlePick(colorIdx) {
+  if (G.phase !== 'input') return;
+  const expected = G.sequence[G.inputStep];
+  if (colorIdx === expected) {
+    flashColor(colorIdx, true);
+    playColorSound(colorIdx);
+    G.inputStep++;
+    renderSeqDots(G.inputStep - 1, true);
+    if (G.inputStep >= G.sequence.length) {
+      // Level complete!
+      setTimeout(() => {
+        G.level++;
+        G.phase = 'watch';
+        setStatus(T[lang].bravo, T[lang].next_lvl);
+        speak(T[lang].bravo, () => {
+          addColor();
+          G.inputStep = 0;
+          render();
+          setTimeout(playSequence, 600);
+        });
+      }, 400);
+    } else {
+      setTimeout(listenForColor, 400);
+    }
+  } else {
+    // Wrong!
+    G.phase = 'result';
+    const wrongBtn = document.querySelector(`[data-idx="${colorIdx}"]`);
+    if (wrongBtn) wrongBtn.classList.add('wrong-pick');
+    playColorSound(expected);
+    const expName = lang==='fr' ? COLORS[expected].fr : COLORS[expected].en;
+    setStatus(T[lang].wrong, T[lang].wrong_sub + ' : ' + expName);
+    speak(T[lang].wrong, () => {
+      if (G.level > G.best) {
+        G.best = G.level;
+        localStorage.setItem('bf_color_best', G.best);
+      }
+      setTimeout(() => render(), 1200);
+    });
+  }
+}
+
+// ══════════════════════════════════
+// RENDER
+// ══════════════════════════════════
+function render() {
+  const grid = document.getElementById('gridZone');
+  const bb = document.getElementById('bb');
+  grid.innerHTML = ''; bb.innerHTML = '';
+  document.getElementById('lvlBadge').textContent = (T[lang].level || 'Niv.') + ' ' + G.level;
+
+  if (G.phase === 'intro') renderIntro(grid, bb);
+  else if (G.phase === 'result') renderResult(grid, bb);
+  else renderGrid(grid, bb);
+}
+
+function renderIntro(grid, bb) {
+  setStatus('', '');
+  renderSeqDots();
+  grid.innerHTML = `
+    <div class="intro-wrap fadein">
+      <div class="intro-emoji">🎨</div>
+      <div class="intro-title">${T[lang].intro_title}</div>
+      <div class="intro-sub">${T[lang].intro_sub}</div>
+      <div class="intro-rule">${T[lang].intro_rule.replace(/\n/g,'<br>')}</div>
+    </div>`;
+  bb.innerHTML = `<button class="btn btn-dark" onclick="startGame()">${T[lang].btn_start}</button>`;
+}
+
+function renderGrid(grid, bb) {
+  const isInput = G.phase === 'input';
+  const g = document.createElement('div');
+  g.className = 'color-grid fadein';
+  COLORS.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'color-btn';
+    btn.setAttribute('data-idx', i);
+    btn.style.background = c.hex;
+    btn.innerHTML = `<span class="color-name">${lang==='fr' ? c.fr : c.en}</span>`;
+    btn.disabled = !isInput;
+    btn.onclick = () => { if (isInput) { window.speechSynthesis && window.speechSynthesis.cancel(); handlePick(i); } };
+    g.appendChild(btn);
+  });
+  grid.appendChild(g);
+}
+
+function renderResult(grid, bb) {
+  setStatus('', '');
+  const lvl = G.level;
+  const titleKey = lvl >= 8 ? 'result_title_great' : lvl >= 5 ? 'result_title_good' : 'result_title_ok';
+  const msgKey = lvl >= 8 ? 'result_msg_great' : lvl >= 5 ? 'result_msg_good' : 'result_msg_ok';
+  grid.innerHTML = `
+    <div class="result-wrap fadein">
+      <div class="result-score">${lvl}</div>
+      <div class="result-label">${T[lang].result_label}</div>
+      <div class="result-title">${T[lang][titleKey]}</div>
+      <div class="result-msg">${T[lang][msgKey]}</div>
+      ${G.best > 0 ? `<div class="best-badge">🏅 ${T[lang].best} : ${G.best}</div>` : ''}
+    </div>`;
+  bb.innerHTML = `<button class="btn btn-sage" onclick="restartGame()">${T[lang].btn_replay}</button>`;
+}
+
+function renderSeqDots(activeIdx, correct) {
+  const d = document.getElementById('seqDots');
+  const lbl = document.getElementById('seqLabel');
+  if (!d) return;
+  lbl.textContent = G.sequence.length > 0 ? T[lang].seq_label + ' — ' + G.sequence.length : '';
+  d.innerHTML = '';
+  G.sequence.forEach((ci, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'seq-dot' + (i === activeIdx ? ' active' : '');
+    if (i < G.inputStep && G.phase === 'input') {
+      dot.style.background = COLORS[ci].hex;
+      dot.style.borderColor = 'rgba(255,255,255,0.6)';
+    } else if (G.phase === 'watch' && i <= activeIdx) {
+      dot.style.background = COLORS[ci].hex;
+    } else {
+      dot.style.background = 'var(--grey-light)';
+    }
+    d.appendChild(dot);
+  });
+}
+
+function flashColor(idx, soft) {
+  const btn = document.querySelector(`[data-idx="${idx}"]`);
+  if (btn) btn.classList.add(soft ? 'correct-pick' : 'flash');
+}
+function unflashAll() {
+  document.querySelectorAll('.color-btn').forEach(b => { b.classList.remove('flash','correct-pick','wrong-pick'); });
+}
+function disableGrid(dis) {
+  document.querySelectorAll('.color-btn').forEach(b => b.disabled = dis);
+}
+function setStatus(msg, sub) {
+  const m = document.getElementById('statusMsg');
+  const s = document.getElementById('statusSub');
+  if (m) m.textContent = msg;
+  if (s) s.textContent = sub;
+}
+
+function restartGame() {
+  G.phase = 'intro';
+  G.sequence = [];
+  G.level = 1;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  render();
+}
+
+// Init
+document.getElementById('hCat').textContent = '';
+document.getElementById('hTitle').innerHTML = '';
+document.getElementById('seqLabel').textContent = '';
+// Load voices early
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
