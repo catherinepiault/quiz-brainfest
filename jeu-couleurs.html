@@ -62,14 +62,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 .color-btn:disabled{cursor:default;opacity:0.7;}
 .color-label{font-size:clamp(10px,2.5vw,12px);font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:0.8px;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,0.35);}
 
-/* VOICE PERMISSION SCREEN */
-.voice-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;gap:20px;text-align:center;}
-.voice-icon{font-size:52px;}
-.voice-title{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,5vw,26px);font-weight:400;line-height:1.3;}
-.voice-sub{font-size:13px;color:var(--grey);line-height:1.7;max-width:280px;}
-.voice-btns{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;}
-.btn-voice-yes{padding:14px;border-radius:50px;border:none;background:var(--terra);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
-.btn-voice-no{padding:12px;border-radius:50px;border:1.5px solid var(--grey-light);background:transparent;color:var(--grey);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+
 
 /* INTRO / RESULT */
 .center-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 18px;gap:16px;text-align:center;}
@@ -151,12 +144,11 @@ const T = {
     title:'Mémoire des <em>Couleurs</em>',
     intro_title:'Votre mémoire a de la <em>couleur</em>',
     intro_sub:'Regardez la séquence s\'allumer, puis reproduisez-la dans l\'ordre. Chaque niveau ajoute une couleur.',
-    rule:'👁 Regardez · 🎨 Reproduisez · 🎤 Parlez ou cliquez',
+    rule:'👁 Regardez la séquence · 🎨 Reproduisez-la dans l\'ordre · ∞ Sans limite !',
     btn_start:'Commencer 🎨',
     btn_replay:'🔄 Rejouer',
     watch:'Regardez bien...',
     your_turn:'À vous !',
-    voice_hint:'Dites la couleur ou cliquez',
     click_hint:'Cliquez sur la bonne couleur',
     bravo:'Bravo !',
     oops:'Oops !',
@@ -172,22 +164,17 @@ const T = {
     msg_good:'Solide ! La moyenne humaine tourne autour du niveau 7.',
     msg_ok:'La mémoire se muscle comme le reste. Chaque partie compte.',
     best:'Meilleur',
-    voice_title:'Voulez-vous utiliser votre voix ?',
-    voice_sub:'Vous pourrez dire la couleur à voix haute au lieu de cliquer. Le micro reste discret.',
-    voice_yes:'🎤 Oui, j\'utilise ma voix',
-    voice_no:'Non merci, je clique',
   },
   en:{
     cat:'Train your memory',
     title:'Memory of <em>Colours</em>',
     intro_title:'Your memory is full of <em>colour</em>',
     intro_sub:'Watch the sequence light up, then reproduce it in order. Each level adds one colour.',
-    rule:'👁 Watch · 🎨 Reproduce · 🎤 Speak or click',
+    rule:'👁 Watch the sequence · 🎨 Reproduce it in order · ∞ No limit!',
     btn_start:'Start 🎨',
     btn_replay:'🔄 Play again',
     watch:'Watch carefully...',
     your_turn:'Your turn!',
-    voice_hint:'Say the colour or click',
     click_hint:'Click the right colour',
     bravo:'Bravo!',
     oops:'Oops!',
@@ -203,10 +190,6 @@ const T = {
     msg_good:'Solid! The human average is around level 7.',
     msg_ok:'Memory works like a muscle. Every game counts.',
     best:'Best',
-    voice_title:'Would you like to use your voice?',
-    voice_sub:'You can say the colour out loud instead of clicking. The mic stays discreet.',
-    voice_yes:'🎤 Yes, use my voice',
-    voice_no:'No thanks, I\'ll click',
   }
 };
 
@@ -215,7 +198,7 @@ const T = {
 // ══════════════════
 let lang = 'fr';
 let G = {
-  phase: 'intro', // intro | voice-ask | watch | input | result
+  phase: 'intro', // intro | watch | input | result
   sequence: [],
   inputStep: 0,
   level: 1,
@@ -223,9 +206,7 @@ let G = {
   musicOn: false,
   audioCtx: null,
   gainNode: null,
-  voiceEnabled: false,
-  recognition: null,
-  isListening: false,
+
 };
 
 try { G.best = parseInt(localStorage.getItem('bf_col_best')||'0')||0; } catch(e){}
@@ -287,64 +268,13 @@ function playAmb(){
 // ══════════════════
 // VOICE
 // ══════════════════
-function requestVoice(cb) {
-  // cb(true) if granted, cb(false) if refused/unavailable
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { cb(false); return; }
-  const r = new SR();
-  r.lang = lang==='fr'?'fr-FR':'en-GB';
-  r.onstart = () => { r.stop(); cb(true); };
-  r.onerror = () => cb(false);
-  r.onend = () => {};
-  try { r.start(); } catch(e){ cb(false); }
-}
 
-function startRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR || !G.voiceEnabled) return;
-  if (G.recognition) { try{ G.recognition.abort(); }catch(e){} }
-  const r = new SR();
-  r.lang = lang==='fr'?'fr-FR':'en-GB';
-  r.continuous = true;
-  r.interimResults = true;
-  r.onresult = (e) => {
-    if (G.phase !== 'input') return;
-    for (let i=e.resultIndex; i<e.results.length; i++){
-      const t = e.results[i][0].transcript.toLowerCase().trim();
-      const idx = matchColorIdx(t);
-      if (idx >= 0) { handlePick(idx); return; }
-    }
-  };
-  r.onerror = (e) => {
-    G.isListening = false;
-    if (e.error !== 'aborted' && G.phase === 'input') {
-      setTimeout(startRecognition, 500);
-    }
-  };
-  r.onend = () => {
-    G.isListening = false;
-    if (G.phase === 'input') setTimeout(startRecognition, 300);
-  };
-  G.recognition = r;
-  try { r.start(); G.isListening = true; } catch(e){}
-}
 
-function stopRecognition() {
-  G.isListening = false;
-  if (G.recognition) {
-    G.recognition.onend = null;
-    try { G.recognition.abort(); } catch(e){}
-    G.recognition = null;
-  }
-}
 
-function matchColorIdx(t) {
-  for (let i=0; i<COLORS.length; i++){
-    const name = (lang==='fr'?COLORS[i].fr:COLORS[i].en).toLowerCase();
-    if (t.includes(name)) return i;
-  }
-  return -1;
-}
+
+
+
+
 
 // ══════════════════
 // SPEECH SYNTHESIS
@@ -373,35 +303,23 @@ function speak(text, onEnd) {
 // GAME
 // ══════════════════
 function startGame() {
-  G.phase = 'voice-ask';
+  G.phase = 'watch';
   G.sequence = [];
   G.level = 1;
   G.inputStep = 0;
-  render();
-}
-
-function answerVoice(useVoice) {
-  if (useVoice) {
-    requestVoice((granted) => {
-      G.voiceEnabled = granted;
-      beginFirstRound();
-    });
-  } else {
-    G.voiceEnabled = false;
-    beginFirstRound();
-  }
-}
-
-function beginFirstRound() {
+  G.voiceEnabled = false;
   addColor();
-  G.phase = 'watch';
   render();
   setTimeout(playSequence, 600);
 }
 
+
+
+
+
 function addColor() {
   // Use all 6 colors from level 3+, no immediate repeat
-  const max = Math.min(COLORS.length, Math.max(2, G.level + 1));
+  const max = COLORS.length; // all 6 colors always available
   const last = G.sequence.length > 0 ? G.sequence[G.sequence.length-1] : -1;
   let next;
   let tries = 0;
@@ -414,7 +332,6 @@ function addColor() {
 
 function playSequence() {
   G.phase = 'watch';
-  stopRecognition();
   setStatus(T[lang].watch, '');
   disableGrid(true);
   updateSeqDots();
@@ -442,10 +359,8 @@ function startInput() {
   G.phase = 'input';
   G.inputStep = 0;
   document.querySelectorAll('.color-btn').forEach(b=>{ b.classList.remove('flash'); b.disabled=false; });
-  const hint = G.voiceEnabled ? T[lang].voice_hint : T[lang].click_hint;
-  setStatus(T[lang].your_turn, hint);
+  setStatus(T[lang].your_turn, T[lang].click_hint);
   updateSeqDots(-1);
-  if (G.voiceEnabled) startRecognition();
 }
 
 function handlePick(ci) {
@@ -463,7 +378,6 @@ function handlePick(ci) {
       // Level complete
       G.phase = 'watch';
       disableGrid(true);
-      stopRecognition();
       setStatus(T[lang].bravo, T[lang].next);
       speak(T[lang].bravo, () => {
         setTimeout(() => {
@@ -478,8 +392,7 @@ function handlePick(ci) {
   } else {
     // Wrong
     G.phase = 'result';
-    stopRecognition();
-    disableGrid(true);
+      disableGrid(true);
     if (btn) btn.classList.add('wrong-flash');
     const expName = lang==='fr'?COLORS[expected].fr:COLORS[expected].en;
     setStatus(T[lang].oops, T[lang].wrong_was+' '+expName);
@@ -503,7 +416,7 @@ function render() {
   document.getElementById('seqLabel').textContent = G.sequence.length ? T[lang].seq+' — '+G.sequence.length : '';
 
   if (G.phase === 'intro') renderIntro(gz, bb);
-  else if (G.phase === 'voice-ask') renderVoiceAsk(gz, bb);
+
   else if (G.phase === 'result') renderResult(gz, bb);
   else renderGrid(gz, bb);
 }
@@ -520,20 +433,7 @@ function renderIntro(gz, bb) {
   bb.innerHTML = `<button class="btn btn-dark" onclick="startGame()">${T[lang].btn_start}</button>`;
 }
 
-function renderVoiceAsk(gz, bb) {
-  setStatus('','');
-  updateSeqDots();
-  gz.innerHTML = `<div class="voice-screen fadein">
-    <div class="voice-icon">🎤</div>
-    <div class="voice-title">${T[lang].voice_title}</div>
-    <div class="voice-sub">${T[lang].voice_sub}</div>
-    <div class="voice-btns">
-      <button class="btn-voice-yes" onclick="answerVoice(true)">${T[lang].voice_yes}</button>
-      <button class="btn-voice-no" onclick="answerVoice(false)">${T[lang].voice_no}</button>
-    </div>
-  </div>`;
-  bb.innerHTML = '';
-}
+
 
 function renderGrid(gz, bb) {
   const g = document.createElement('div');
@@ -591,7 +491,6 @@ function updateSeqDots(activeIdx, done) {
 }
 
 function restartGame() {
-  stopRecognition();
   window.speechSynthesis && window.speechSynthesis.cancel();
   G.phase = 'intro';
   G.sequence = [];
