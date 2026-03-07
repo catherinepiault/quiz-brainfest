@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BrainFest — Entraînez votre mémoire</title>
+<title>BrainFest</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--sage:#3d6b4a;--sage-mid:#6b9e78;--sage-light:#e8f5ec;--cream:#f7f3ec;--charcoal:#2a2520;--grey:#7a7268;--grey-light:#f0ede8;--white:#fff;}
@@ -41,8 +41,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 </head>
 <body>
 <div class="layout">
+
   <div class="cards-zone">
-    <div class="cards-label">Choisissez un jeu →</div>
+    <div class="cards-label">Choisissez un jeu</div>
     <div class="cards-scroll">
 
       <div class="quiz-card" id="card-couleurs">
@@ -91,24 +92,32 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 
   <div class="share-strip">
     <span class="share-label">Partager</span>
-    <a class="sbtn" href="sms:?body=Entraînez votre mémoire sur BrainFest !">📱 SMS</a>
-    <a class="sbtn" href="https://wa.me/?text=Entraînez votre mémoire sur BrainFest !" target="_blank">💬 WhatsApp</a>
-    <a class="sbtn" href="/cdn-cgi/l/email-protection#f3cc80869199969087ceb181929a9db5968087d5919c978aceb69d878192305d9d9689d3859c878196d39e305a9e9c9a8196d3d2">✉️ Email</a>
+    <a class="sbtn" href="sms:?body=Entrainez votre memoire sur BrainFest !">SMS</a>
+    <a class="sbtn" href="https://wa.me/?text=Entrainez votre memoire sur BrainFest !" target="_blank">WhatsApp</a>
   </div>
-</div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+</div>
+<script>
+var BASE = 'https://catherinepiault.github.io/quiz-brainfest/';
 var GAMES = {
-  'card-couleurs': 'https://catherinepiault.github.io/quiz-brainfest/jeu-couleurs.html',
-  'card-notes': 'https://catherinepiault.github.io/quiz-brainfest/jeu-notes.html'
+  'card-couleurs': BASE + 'jeu-couleurs.html',
+  'card-notes':    BASE + 'jeu-notes.html'
 };
 var activeCard = null;
 var es = document.getElementById('es');
 var qf = document.getElementById('qf');
 
-Object.keys(GAMES).forEach(function(cardId) {
-  var card = document.getElementById(cardId);
-  if (!card) return;
+Object.keys(GAMES).forEach(function(id) {
+  var card = document.getElementById(id);
   card.addEventListener('click', function() {
     if (activeCard) document.getElementById(activeCard).classList.remove('active');
-    ac
+    activeCard = id;
+    card.classList.add('active');
+    qf.src = GAMES[id];
+    es.classList.add('hidden');
+    qf.classList.add('visible');
+  });
+});
+</script>
+</body>
+</html>
