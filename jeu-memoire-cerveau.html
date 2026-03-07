@@ -42,8 +42,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 .lang-switch:hover{background:rgba(255,255,255,0.2);}
 
 /* TIMER BAR */
-.timer-wrap{flex-shrink:0;height:4px;background:var(--grey-light);}
-.timer-bar{height:100%;width:100%;transition:width 0.1s linear, background 0.3s;}
+.timer-wrap{display:none;}
+
 
 /* CONTENT */
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-height:0;}
@@ -65,9 +65,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 .diff-medium{background:#fff3e0;color:#b36a00;}
 .diff-hard{background:#fce4ec;color:#ad1457;}
 .q-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4vw,22px);font-weight:600;line-height:1.45;}
-.timer-text{font-size:11px;font-weight:700;text-align:center;letter-spacing:1px;}
-.timer-text.warn{color:var(--timer-warn);}
-.timer-text.danger{color:var(--timer-danger);}
+.timer-text{display:none;}
+
+
 
 /* VOICE */
 .voice-zone{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;}
@@ -163,7 +163,7 @@ const T = {
     title: "Le Cerveau en <em>Questions</em>",
     intro_title: "Votre cerveau vous réserve des surprises",
     intro_sub: "Un quiz chrono sur la mémoire, les neurosciences et le fonctionnement du cerveau. La difficulté s'adapte à vos réponses — et quelques vérités surprenantes vous attendent.",
-    rules: "⏱️ <strong>Règle :</strong> Répondez avant la fin du chrono. Plus vous répondez vite et juste, plus vous gagnez de points. La difficulté évolue selon votre niveau.",
+    rules: "🧠 <strong>Règle :</strong> Répondez à votre rythme. La difficulté évolue selon votre niveau. Les questions sont lues à voix haute — activez le son !",
     diff_auto: "🧠 Difficulté adaptative",
     btn_start: "Activer mes neurones 🧠",
     btn_next: "Question suivante →",
@@ -196,7 +196,7 @@ const T = {
     title: "The Brain in <em>Questions</em>",
     intro_title: "Your brain has a few surprises in store",
     intro_sub: "A timed quiz on memory, neuroscience and how the brain works. Difficulty adapts to your answers — and a few surprising truths await.",
-    rules: "⏱️ <strong>Rule:</strong> Answer before the timer runs out. The faster and more accurate, the more points you earn. Difficulty evolves with your level.",
+    rules: "🧠 <strong>Rule:</strong> Answer at your own pace. Difficulty evolves with your level. Questions are read aloud — turn on your sound!",
     diff_auto: "🧠 Adaptive difficulty",
     btn_start: "Activate my neurons 🧠",
     btn_next: "Next question →",
@@ -401,10 +401,9 @@ function startTimer(seconds) {
   S.timeLeft = seconds;
   S.totalTime = seconds;
   clearInterval(S.timerInterval);
-  updateTimerUI();
   S.timerInterval = setInterval(() => {
     S.timeLeft -= 0.1;
-    updateTimerUI();
+  
     if (S.timeLeft <= 0) {
       clearInterval(S.timerInterval);
       handleTimeout();
@@ -430,12 +429,7 @@ function updateTimerUI() {
   }
 }
 
-function handleTimeout() {
-  S.answered = true;
-  S.times.push(0);
-  updateDifficulty(false, 0);
-  renderQuestion(true, true);
-}
+function handleTimeout() {}
 
 // ═══════════════════════════════════════
 // VOICE RECOGNITION
@@ -626,10 +620,7 @@ function result(c, b) {
 // GAME LOGIC
 // ═══════════════════════════════════════
 function calcPoints(q, timeUsed) {
-  const timeRatio = timeUsed / q.t;
-  const base = { easy: 100, medium: 150, hard: 200 }[q.d];
-  const timeBonus = Math.round(base * timeRatio * 0.5);
-  return base + timeBonus;
+  return { easy: 100, medium: 150, hard: 200 }[q.d];
 }
 
 function startGame() {
@@ -647,14 +638,14 @@ function startGame() {
   const qi = getNextQuestion();
   const q = QS[lang][qi];
   render();
-  startTimer(q.t);
+  speakQuestion();
 }
 
 function pickAnswer(i) {
   if (S.answered) return;
-  stopTimer();
-  const timeUsed = S.totalTime - S.timeLeft;
-  S.times.push(timeUsed);
+  stopSpeaking();
+  const timeUsed = 5;
+  S.times.push(5);
   S.answered = true;
   S.sel = i;
   const qi = S.order[S.order.length - 1];
@@ -691,13 +682,35 @@ function nextQuestion() {
   if (qi === null) { S.screen = 'result'; render(); return; }
   const q = QS[lang][qi];
   render();
-  startTimer(q.t);
+  speakQuestion();
 }
 
 function restartGame() {
   S.screen = 'intro';
+  S.voiceInitDone = false;
   stopMusic();
+  stopSpeaking();
   render();
+}
+
+function speakQuestion() {
+  const qi = S.order[S.order.length - 1];
+  if (qi === undefined) return;
+  const q = QS[lang][qi];
+  if (!q) return;
+  stopSpeaking();
+  if (!window.speechSynthesis) return;
+  const utter = new SpeechSynthesisUtterance(q.q);
+  utter.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
+  utter.rate = 0.92;
+  utter.pitch = 1.05;
+  utter.volume = 1;
+  S.currentUtterance = utter;
+  window.speechSynthesis.speak(utter);
+}
+
+function stopSpeaking() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
 }
 
 // Init
