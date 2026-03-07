@@ -311,31 +311,50 @@ function loopMusic() {
 // ══════════════════════════════════
 function initVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return;
+  if (!SR) { G.voiceReady = false; return; }
+  if (G.recognition) { try { G.recognition.stop(); } catch(e){} }
   G.recognition = new SR();
   G.recognition.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
-  G.recognition.continuous = false;
-  G.recognition.interimResults = false;
+  G.recognition.continuous = true;
+  G.recognition.interimResults = true;
   G.voiceReady = true;
-  // Request permission once silently
-  try {
-    G.recognition.start();
-    setTimeout(() => { try { G.recognition.stop(); } catch(e){} }, 300);
-  } catch(e){}
+  G.recognition.onresult = (e) => {
+    if (G.phase !== 'input') return;
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript.toLowerCase().trim();
+      const colorId = matchColor(t);
+      if (colorId !== null) {
+        const idx = COLORS.findIndex(c => c.id === colorId);
+        if (idx >= 0) handlePick(idx);
+        return;
+      }
+    }
+  };
+  G.recognition.onerror = (e) => {
+    if (e.error === 'no-speech' || e.error === 'aborted') restartListening();
+  };
+  G.recognition.onend = () => {
+    if (G.phase === 'input' && G.voiceReady) restartListening();
+  };
+}
+
+function restartListening() {
+  if (!G.recognition || G.phase !== 'input') return;
+  try { G.recognition.start(); } catch(e){}
+}
+
+function startContinuousListening() {
+  if (!G.recognition || !G.voiceReady) return;
+  try { G.recognition.start(); } catch(e){}
+}
+
+function stopListening() {
+  if (!G.recognition) return;
+  try { G.recognition.stop(); } catch(e){}
 }
 
 function listenOnce(onResult) {
-  if (!G.recognition || !G.voiceReady) return;
-  G.listening = true;
-  G.recognition.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
-  G.recognition.onresult = (e) => {
-    const t = e.results[0][0].transcript.toLowerCase().trim();
-    G.listening = false;
-    onResult(t);
-  };
-  G.recognition.onerror = () => { G.listening = false; };
-  G.recognition.onend = () => { G.listening = false; };
-  try { G.recognition.start(); } catch(e){}
+  // Legacy stub — not used in continuous mode
 }
 
 function matchColor(transcript) {
@@ -350,29 +369,21 @@ function matchColor(transcript) {
 // SPEAK — female voice preference
 // ══════════════════════════════════
 function speak(text, onEnd) {
-  if (!window.speechSynthesis) { if(onEnd) onEnd(); return; }
+  if (!window.speechSynthesis) { if(onEnd) setTimeout(onEnd,300); return; }
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
-  u.rate = 0.88;
-  u.pitch = 1.2;
-  // Female voice preference
+  u.rate = 1.05;
+  u.pitch = 1.3;
+  u.volume = 1;
   const voices = window.speechSynthesis.getVoices();
+  // Priority: natural neural voices, then female names
+  const preferred = ['Amélie','Lea','Léa','Marie','Audrey','Julie','Alice',
+    'Samantha','Karen','Fiona','Victoria','Moira','Tessa','Nicky'];
   const femaleVoice = voices.find(v =>
-    v.lang.startsWith(lang==='fr'?'fr':'en') &&
-    (v.name.toLowerCase().includes('female') ||
-     v.name.toLowerCase().includes('femme') ||
-     v.name.includes('Amélie') ||
-     v.name.includes('Marie') ||
-     v.name.includes('Samantha') ||
-     v.name.includes('Fiona') ||
-     v.name.includes('Victoria') ||
-     v.name.includes('Veena') ||
-     v.name.includes('Karen') ||
-     v.name.includes('Audrey') ||
-     v.name.includes('Julie') ||
-     v.name.includes('Léa') ||
-     v.name.includes('Alice'))
+    v.lang.startsWith(lang==='fr'?'fr':'en') && preferred.some(n => v.name.includes(n))
+  ) || voices.find(v =>
+    v.lang.startsWith(lang==='fr'?'fr':'en') && v.localService === false
   ) || voices.find(v => v.lang.startsWith(lang==='fr'?'fr':'en'));
   if (femaleVoice) u.voice = femaleVoice;
   if (onEnd) u.onend = onEnd;
@@ -412,9 +423,7 @@ function playSequence() {
     const ci = G.sequence[i];
     flashColor(ci);
     playColorSound(ci);
-    // Speak color name
-    const name = lang === 'fr' ? COLORS[ci].fr : COLORS[ci].en;
-    speak(name);
+    // No voice during sequence — just sound
     renderSeqDots(i);
     i++;
     const delay = Math.max(600, 900 - G.level * 20);
@@ -430,22 +439,7 @@ function startInput() {
   disableGrid(false);
   setStatus(T[lang].your_turn, T[lang].voice_sub);
   renderSeqDots(-1);
-  // Start listening
-  listenForColor();
-}
-
-function listenForColor() {
-  if (G.phase !== 'input') return;
-  listenOnce((transcript) => {
-    const colorId = matchColor(transcript);
-    if (colorId) {
-      const idx = COLORS.findIndex(c => c.id === colorId);
-      handlePick(idx);
-    } else {
-      // retry listen
-      if (G.phase === 'input') setTimeout(listenForColor, 300);
-    }
-  });
+  startContinuousListening();
 }
 
 function handlePick(colorIdx) {
@@ -462,7 +456,7 @@ function handlePick(colorIdx) {
         G.level++;
         G.phase = 'watch';
         setStatus(T[lang].bravo, T[lang].next_lvl);
-        speak(T[lang].bravo, () => {
+        speak(lang==='fr'?'Bravo !':'Well done!', () => {
           addColor();
           G.inputStep = 0;
           render();
@@ -470,17 +464,18 @@ function handlePick(colorIdx) {
         });
       }, 400);
     } else {
-      setTimeout(listenForColor, 400);
+      // continuous listener handles next pick
     }
   } else {
     // Wrong!
     G.phase = 'result';
+    stopListening();
     const wrongBtn = document.querySelector(`[data-idx="${colorIdx}"]`);
     if (wrongBtn) wrongBtn.classList.add('wrong-pick');
     playColorSound(expected);
     const expName = lang==='fr' ? COLORS[expected].fr : COLORS[expected].en;
     setStatus(T[lang].wrong, T[lang].wrong_sub + ' : ' + expName);
-    speak(T[lang].wrong, () => {
+    speak(lang==='fr'?'Oops !':'Oops!', () => {
       if (G.level > G.best) {
         G.best = G.level;
         localStorage.setItem('bf_color_best', G.best);
@@ -592,6 +587,7 @@ function restartGame() {
   G.phase = 'intro';
   G.sequence = [];
   G.level = 1;
+  stopListening();
   window.speechSynthesis && window.speechSynthesis.cancel();
   render();
 }
