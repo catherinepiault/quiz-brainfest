@@ -35,20 +35,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 .icon-btn{background:rgba(255,255,255,0.1);border:none;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.75);cursor:pointer;letter-spacing:0.5px;}
 
 /* SEQ DOTS */
-.seq-zone{flex-shrink:0;padding:10px 18px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.seq-zone{flex-shrink:0;padding:6px 18px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .seq-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);}
 .seq-dots{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;min-height:20px;}
 .seq-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,0.08);transition:transform 0.15s;}
 .seq-dot.lit{transform:scale(1.35);box-shadow:0 0 10px rgba(0,0,0,0.2);}
 
 /* STATUS */
-.status-zone{flex-shrink:0;text-align:center;padding:6px 18px;min-height:44px;}
+.status-zone{flex-shrink:0;text-align:center;padding:4px 18px;min-height:36px;}
 .status-msg{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4vw,22px);font-weight:400;line-height:1.3;}
 .status-sub{font-size:11px;color:var(--grey);margin-top:2px;}
 
 /* GRID */
-.grid-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 18px;min-height:0;}
-.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:320px;}
+.grid-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 18px;min-height:0;overflow:hidden;}
+.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:min(320px, calc(100vh - 280px));}
 .color-btn{
   aspect-ratio:1;border-radius:20px;border:3px solid rgba(255,255,255,0.35);
   cursor:pointer;transition:transform 0.1s,box-shadow 0.15s,border-color 0.15s;
@@ -84,7 +84,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 .best-badge{background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:20px;padding:6px 18px;font-size:12px;color:#7a5a00;font-weight:600;}
 
 /* BOTTOM */
-.bottom-bar{flex-shrink:0;padding:10px 18px;background:var(--white);border-top:1px solid var(--grey-light);}
+.bottom-bar{flex-shrink:0;padding:8px 18px;background:var(--white);border-top:1px solid var(--grey-light);}
 .btn{width:100%;padding:13px;border-radius:50px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
 .btn-dark{background:var(--charcoal);color:white;}
 .btn-sage{background:var(--sage);color:white;}
@@ -170,7 +170,7 @@ const T = {
     result_ok:'Bonne tentative ! 🌱',
     msg_great:'Votre mémoire de travail est remarquable. Les neuroscientifiques seraient légèrement jaloux.',
     msg_good:'Solide ! La moyenne humaine tourne autour du niveau 7.',
-    msg_ok:'La mémoire se muscle comme le reste. Revenez demain.',
+    msg_ok:'La mémoire se muscle comme le reste. Chaque partie compte.',
     best:'Meilleur',
     voice_title:'Voulez-vous utiliser votre voix ?',
     voice_sub:'Vous pourrez dire la couleur à voix haute au lieu de cliquer. Le micro reste discret.',
@@ -201,7 +201,7 @@ const T = {
     result_ok:'Good attempt! 🌱',
     msg_great:'Your working memory is remarkable. Neuroscientists would be impressed.',
     msg_good:'Solid! The human average is around level 7.',
-    msg_ok:'Memory works like a muscle. Come back tomorrow.',
+    msg_ok:'Memory works like a muscle. Every game counts.',
     best:'Best',
     voice_title:'Would you like to use your voice?',
     voice_sub:'You can say the colour out loud instead of clicking. The mic stays discreet.',
@@ -400,8 +400,16 @@ function beginFirstRound() {
 }
 
 function addColor() {
-  const max = Math.min(COLORS.length, Math.max(2, Math.ceil(G.level/2)+1));
-  G.sequence.push(Math.floor(Math.random()*max));
+  // Use all 6 colors from level 3+, no immediate repeat
+  const max = Math.min(COLORS.length, Math.max(2, G.level + 1));
+  const last = G.sequence.length > 0 ? G.sequence[G.sequence.length-1] : -1;
+  let next;
+  let tries = 0;
+  do {
+    next = Math.floor(Math.random() * max);
+    tries++;
+  } while (next === last && tries < 20);
+  G.sequence.push(next);
 }
 
 function playSequence() {
@@ -458,11 +466,13 @@ function handlePick(ci) {
       stopRecognition();
       setStatus(T[lang].bravo, T[lang].next);
       speak(T[lang].bravo, () => {
-        G.level++;
-        document.getElementById('lvlBadge').textContent = T[lang].lvl+' '+G.level;
-        addColor();
-        G.inputStep = 0;
-        setTimeout(playSequence, 400);
+        setTimeout(() => {
+          G.level++;
+          document.getElementById('lvlBadge').textContent = T[lang].lvl+' '+G.level;
+          addColor();
+          G.inputStep = 0;
+          setTimeout(playSequence, 400);
+        }, 700);
       });
     }
   } else {
@@ -474,8 +484,10 @@ function handlePick(ci) {
     const expName = lang==='fr'?COLORS[expected].fr:COLORS[expected].en;
     setStatus(T[lang].oops, T[lang].wrong_was+' '+expName);
     speak(T[lang].oops, () => {
-      if (G.level > G.best) { G.best=G.level; try{localStorage.setItem('bf_col_best',G.best);}catch(e){} }
-      setTimeout(render, 1000);
+      setTimeout(() => {
+        if (G.level > G.best) { G.best=G.level; try{localStorage.setItem('bf_col_best',G.best);}catch(e){} }
+        setTimeout(render, 600);
+      }, 700);
     });
   }
 }
