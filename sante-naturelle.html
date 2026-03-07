@@ -10,11 +10,6 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);}
 .layout{display:flex;flex-direction:column;height:100vh;width:100%;max-width:680px;margin:0 auto;}
-
-
-
-
-
 .cards-zone{flex-shrink:0;padding:8px 16px 6px;background:var(--white);border-bottom:1px solid var(--grey-light);}
 .cards-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:6px;}
 .cards-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
@@ -36,8 +31,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 .empty-icon{font-size:38px;margin-bottom:10px;animation:float 3s ease-in-out infinite;}
 .empty-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--charcoal);margin-bottom:4px;}
 .empty-sub{font-size:12px;color:var(--grey);line-height:1.6;}
-
-
 .qframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:none;background:#fff;}
 .qframe.visible{display:block;}
 .share-strip{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:7px;padding:5px 16px;background:#fff;border-top:1px solid var(--grey-light);}
@@ -48,9 +41,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 </head>
 <body>
 <div class="layout">
-<h1>Cultivez vos connaissances en <em>santé naturelle</em></h1>
-    <div class="header-sub">Peau · Microbiote · Sommeil · Immunité...</div>
-  </div>
+
   <div class="cards-zone">
     <div class="cards-label">Choisissez un sujet →</div>
     <div class="cards-scroll">
@@ -79,34 +70,35 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
       </div>
     </div>
   </div>
+
   <div class="quiz-zone">
     <div class="empty-state" id="es">
       <div class="empty-icon">🌿</div>
       <div class="empty-title">Choisissez un sujet ci-dessus</div>
       <div class="empty-sub">Cliquez sur une carte pour commencer.<br>Le quiz s'affichera ici immédiatement.</div>
     </div>
-    
     <iframe class="qframe" id="qf" src="" allowfullscreen></iframe>
   </div>
+
   <div class="share-strip">
     <span class="share-label">Partager</span>
     <a class="sbtn" href="sms:?body=Testez ce quiz sur BrainFest !">📱 SMS</a>
     <a class="sbtn" href="https://wa.me/?text=Testez ce quiz sur BrainFest !" target="_blank">💬 WhatsApp</a>
-    <a class="sbtn" href="/cdn-cgi/l/email-protection#b08fc3c5d2dad5d3c48df2c2d1d9def6d5c3c496d2dfd4c98de4d5c3c4d5ca90d3d590c1c5d9ca9091">✉️ Email</a>
+    <a class="sbtn" href="mailto:?subject=BrainFest&body=Testez ce quiz !">✉️ Email</a>
   </div>
+
 </div>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 var QUIZ = 'https://catherinepiault.github.io/quiz-brainfest/quiz-peau-naturo-complet.html';
 var card = document.getElementById('card-peau');
 var es = document.getElementById('es');
 var qf = document.getElementById('qf');
-
 card.addEventListener('click', function() {
   card.classList.add('active');
   qf.src = QUIZ;
   es.classList.add('hidden');
-  
   qf.classList.add('visible');
 });
-cb.addEventListener('click', function() {
-  card.cla
+</script>
+</body>
+</html>
