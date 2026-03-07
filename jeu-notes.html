@@ -352,27 +352,25 @@ function handlePick(ii){
     updateSeqDots(G.inputStep-1, true);
     if(G.inputStep>=G.sequence.length){
       G.phase='watch'; disableGrid(true);
-      speak(T[lang].bravo, ()=>{
-        setTimeout(()=>{
-          G.level++;
-          document.getElementById('lvlBadge').textContent=T[lang].lvl+' '+G.level;
-          addNote(); G.inputStep=0;
-          setTimeout(playSequence,400);
-        },600);
-      });
       setStatus(T[lang].bravo, T[lang].next);
+      setTimeout(()=>{
+        G.level++;
+        document.getElementById('lvlBadge').textContent=T[lang].lvl+' '+G.level;
+        addNote(); G.inputStep=0;
+        setTimeout(playSequence,400);
+      },1000);
     }
   } else {
     G.phase='result'; disableGrid(true);
     flashBtn(ii,'wrong');
     const expName = lang==='fr'?INSTRUMENTS[expected].fr:INSTRUMENTS[expected].en;
     setStatus(T[lang].oops, T[lang].was+' '+expName);
-    speak(T[lang].oops, ()=>{
-      setTimeout(()=>{
-        if(G.level>G.best){ G.best=G.level; try{localStorage.setItem('bf_notes_best',G.best);}catch(e){} }
-        setTimeout(render,600);
-      },700);
-    });
+    // Save best score immediately
+    if(G.level>G.best){ G.best=G.level; try{localStorage.setItem('bf_notes_best',G.best);}catch(e){} }
+    // Warm goodbye voice after short pause
+    setTimeout(()=>{
+      speakGoodbye(()=>{ setTimeout(render, 800); });
+    }, 600);
   }
 }
 
@@ -467,9 +465,37 @@ function updateSeqDots(activeIdx, done){
   });
 }
 function restartGame(){
-  window.speechSynthesis&&window.speechSynthesis.cancel();
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
   G.phase='intro'; G.sequence=[]; G.level=1; G.inputStep=0;
   render();
+}
+
+// SPEAK GOODBYE — warm, natural farewell only at end of game
+function speakGoodbye(onEnd){
+  const text = lang==='fr'
+    ? 'Tu peux rejouer quand tu veux... à bientôt !'
+    : 'You can play again whenever you like... see you soon!';
+  if(!window.speechSynthesis){ if(onEnd) setTimeout(onEnd,400); return; }
+  window.speechSynthesis.cancel();
+  function go(){
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=lang==='fr'?'fr-FR':'en-GB';
+    u.rate=0.88;   // slower = more natural, warmer
+    u.pitch=1.15;  // slightly high = feminine, gentle
+    u.volume=1;
+    const voices=window.speechSynthesis.getVoices();
+    // Priority list — most natural voices available
+    const pref=['Amélie','Lea','Léa','Marie','Audrey','Julie','Alice',
+                'Samantha','Karen','Fiona','Victoria','Nicky','Tessa','Moira'];
+    const v=voices.find(v=>v.lang.startsWith(lang==='fr'?'fr':'en')&&pref.some(p=>v.name.includes(p)))
+          ||voices.find(v=>v.lang.startsWith(lang==='fr'?'fr':'en')&&!v.localService)
+          ||voices.find(v=>v.lang.startsWith(lang==='fr'?'fr':'en'));
+    if(v) u.voice=v;
+    if(onEnd){ u.onend=onEnd; u.onerror=()=>setTimeout(onEnd,400); }
+    window.speechSynthesis.speak(u);
+  }
+  const vv=window.speechSynthesis.getVoices();
+  if(vv.length) go(); else window.speechSynthesis.onvoiceschanged=go;
 }
 
 // SPEAK — female voice
