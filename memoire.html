@@ -53,11 +53,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
         </div>
       </div>
 
-      <div class="quiz-card soon">
+      <div class="quiz-card" id="card-notes">
         <span class="card-emoji">🎵</span>
         <div class="card-body">
           <div class="card-title">Suites de Notes</div>
-          <span class="card-badge badge-soon">Bientôt</span>
+          <span class="card-badge badge-ok">Disponible</span>
         </div>
       </div>
 
@@ -93,13 +93,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
     <span class="share-label">Partager</span>
     <a class="sbtn" href="sms:?body=Entraînez votre mémoire sur BrainFest !">📱 SMS</a>
     <a class="sbtn" href="https://wa.me/?text=Entraînez votre mémoire sur BrainFest !" target="_blank">💬 WhatsApp</a>
-    <a class="sbtn" href="mailto:?subject=BrainFest&body=Entraînez votre mémoire !">✉️ Email</a>
+    <a class="sbtn" href="/cdn-cgi/l/email-protection#f3cc80869199969087ceb181929a9db5968087d5919c978aceb69d878192305d9d9689d3859c878196d39e305a9e9c9a8196d3d2">✉️ Email</a>
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 var GAMES = {
-  'card-couleurs': 'https://catherinepiault.github.io/quiz-brainfest/jeu-couleurs.html'
+  'card-couleurs': 'https://catherinepiault.github.io/quiz-brainfest/jeu-couleurs.html',
+  'card-notes': 'https://catherinepiault.github.io/quiz-brainfest/jeu-notes.html'
 };
 var activeCard = null;
 var es = document.getElementById('es');
@@ -110,13 +111,4 @@ Object.keys(GAMES).forEach(function(cardId) {
   if (!card) return;
   card.addEventListener('click', function() {
     if (activeCard) document.getElementById(activeCard).classList.remove('active');
-    activeCard = cardId;
-    card.classList.add('active');
-    qf.src = GAMES[cardId];
-    es.classList.add('hidden');
-    qf.classList.add('visible');
-  });
-});
-</script>
-</body>
-</html>
+    ac
