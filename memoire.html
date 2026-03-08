@@ -3,93 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BrainFest</title>
+<title>BrainFest — Mémoire</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--sage:#3d6b4a;--sage-mid:#6b9e78;--sage-light:#e8f5ec;--cream:#f7f3ec;--charcoal:#2a2520;--grey:#7a7268;--grey-light:#f0ede8;--white:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{width:100%;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);}
-
-/* CARDS ZONE — hauteur naturelle, pas de 100vh */
 .cards-zone{padding:10px 16px 12px;background:var(--white);border-bottom:1px solid var(--grey-light);}
 .cards-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:8px;}
 .cards-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .cards-scroll::-webkit-scrollbar{display:none;}
-.quiz-card{flex-shrink:0;width:150px;background:var(--cream);border-radius:12px;padding:10px 12px;cursor:pointer;border:2px solid transparent;transition:all 0.2s ease;display:flex;align-items:center;gap:10px;}
+.quiz-card{flex-shrink:0;width:150px;background:var(--cream);border-radius:12px;padding:10px 12px;border:2px solid transparent;transition:all 0.2s ease;display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
 .quiz-card:hover:not(.soon){border-color:var(--sage-mid);background:var(--sage-light);}
-.quiz-card.soon{opacity:0.4;cursor:default;}
+.quiz-card.soon{opacity:0.4;pointer-events:none;}
 .card-emoji{font-size:20px;flex-shrink:0;}
 .card-body{display:flex;flex-direction:column;gap:3px;min-width:0;}
 .card-title{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;color:var(--charcoal);line-height:1.25;}
 .card-badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:8px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;}
 .badge-ok{background:var(--sage-light);color:var(--sage);}
 .badge-soon{background:var(--grey-light);color:var(--grey);}
-
-/* HINT */
 .hint{padding:20px 16px;text-align:center;}
 .hint-icon{font-size:32px;margin-bottom:8px;}
 .hint-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--charcoal);margin-bottom:4px;}
 .hint-sub{font-size:11px;color:var(--grey);line-height:1.6;}
-
-/* OVERLAY — plein écran par-dessus tout */
-.overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:9999;
-  background:#000;
-  flex-direction:column;
-}
-.overlay.open{display:flex;}
-.overlay-header{
-  flex-shrink:0;
-  background:var(--charcoal);
-  padding:8px 16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-.overlay-title{font-family:'Cormorant Garamond',serif;font-size:15px;color:white;font-weight:300;}
-.btn-close{
-  background:rgba(255,255,255,0.15);
-  border:none;
-  border-radius:50px;
-  padding:5px 14px;
-  font-family:'DM Sans',sans-serif;
-  font-size:11px;
-  font-weight:600;
-  color:white;
-  cursor:pointer;
-}
-.game-frame{
-  flex:1;
-  border:none;
-  width:100%;
-  height:100%;
-}
 </style>
 </head>
 <body>
-
 <div class="cards-zone">
   <div class="cards-label">Choisissez un jeu</div>
   <div class="cards-scroll">
 
-    <div class="quiz-card" onclick="openGame('jeu-couleurs.html', 'Mémoire des Couleurs')">
+    <a class="quiz-card" href="https://catherinepiault.github.io/quiz-brainfest/jeu-couleurs.html" target="_blank">
       <span class="card-emoji">🎨</span>
       <div class="card-body">
         <div class="card-title">Mémoire des Couleurs</div>
         <span class="card-badge badge-ok">Disponible</span>
       </div>
-    </div>
+    </a>
 
-    <div class="quiz-card" onclick="openGame('jeu-notes.html', 'Suites de Notes')">
+    <a class="quiz-card" href="https://catherinepiault.github.io/quiz-brainfest/jeu-notes.html" target="_blank">
       <span class="card-emoji">🎵</span>
       <div class="card-body">
         <div class="card-title">Suites de Notes</div>
         <span class="card-badge badge-ok">Disponible</span>
       </div>
-    </div>
+    </a>
 
     <div class="quiz-card soon">
       <span class="card-emoji">🌿</span>
@@ -109,35 +67,10 @@ html,body{width:100%;font-family:'DM Sans',sans-serif;background:var(--cream);co
 
   </div>
 </div>
-
 <div class="hint">
   <div class="hint-icon">🧠</div>
   <div class="hint-title">Choisissez un jeu ci-dessus</div>
-  <div class="hint-sub">Le jeu s'ouvrira en plein écran.</div>
+  <div class="hint-sub">Le jeu s'ouvrira en plein écran<br>dans un nouvel onglet.</div>
 </div>
-
-<!-- OVERLAY PLEIN ECRAN -->
-<div class="overlay" id="overlay">
-  <div class="overlay-header">
-    <div class="overlay-title" id="overlayTitle"></div>
-    <button class="btn-close" onclick="closeGame()">✕ Fermer</button>
-  </div>
-  <iframe class="game-frame" id="gameFrame" src="" allowfullscreen></iframe>
-</div>
-
-<script>
-var BASE = 'https://catherinepiault.github.io/quiz-brainfest/';
-function openGame(file, title) {
-  document.getElementById('overlayTitle').textContent = title;
-  document.getElementById('gameFrame').src = BASE + file;
-  document.getElementById('overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeGame() {
-  document.getElementById('overlay').classList.remove('open');
-  document.getElementById('gameFrame').src = '';
-  document.body.style.overflow = '';
-}
-</script>
 </body>
 </html>
