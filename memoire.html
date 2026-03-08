@@ -57,8 +57,8 @@ body{min-height:100vh;}
 /* FEATURED */
 .featured{margin:16px 16px 0;background:var(--white);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
 .featured-top{position:relative;}
-.featured-img{width:100%;height:155px;object-fit:cover;display:block;}
-.featured-placeholder{width:100%;height:155px;display:none;align-items:center;justify-content:center;font-size:48px;background:linear-gradient(135deg,var(--sage-light),var(--cream));}
+.featured-img{width:100%;height:220px;object-fit:cover;display:block;}
+.featured-placeholder{width:100%;height:220px;display:none;align-items:center;justify-content:center;font-size:72px;background:linear-gradient(135deg,#d4eeda,var(--cream));}
 .btn-share{position:absolute;top:10px;right:10px;background:var(--sage);color:white;border:none;border-radius:50px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;}
 .featured-body{padding:13px 16px 15px;}
 .feat-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--grey);margin-bottom:3px;}
@@ -82,8 +82,9 @@ body{min-height:100vh;}
 .footer-link{color:var(--sage);text-decoration:underline;text-underline-offset:2px;}
 
 /* GAME LAYER */
-#gamePage{display:none;position:fixed;inset:0;z-index:100;flex-direction:column;background:#000;}
-#gamePage.open{display:flex;}
+#gamePage{display:none;position:fixed;inset:0;z-index:100;background:#000;}
+#gamePage.open{display:flex;flex-direction:column;}
+#gameInner{display:flex;flex-direction:column;max-width:560px;width:100%;margin:0 auto;height:100%;flex:1;}
 .game-topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--charcoal);}
 .btn-back{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:none;border-radius:50px;padding:7px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
 .topbar-title{font-family:'Cormorant Garamond',serif;font-size:14px;color:rgba(255,255,255,0.85);font-weight:300;flex:1;text-align:center;padding:0 8px;}
@@ -166,13 +167,13 @@ body{min-height:100vh;}
 
 <!-- GAME LAYER -->
 <div id="gamePage">
-  <div class="game-topbar">
+  <div id="gameInner"><div class="game-topbar">
     <button class="btn-back" onclick="closeGame()">← <span id="backLabel">Retour</span></button>
     <div class="topbar-title" id="gameTitle"></div>
     <button class="btn-topshare" onclick="shareCurrentGame()">↗</button>
   </div>
   <iframe id="gameFrame" src="" allowfullscreen allow="autoplay"></iframe>
-</div>
+</div></div>
 
 <script>
 var lang='fr';

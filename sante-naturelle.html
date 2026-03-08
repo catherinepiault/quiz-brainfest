@@ -72,8 +72,9 @@ body{min-height:100vh;}
 .footer-line{font-size:11px;color:var(--grey);line-height:1.8;}
 .footer-link{color:var(--sage);text-decoration:underline;text-underline-offset:2px;}
 
-#gamePage{display:none;position:fixed;inset:0;z-index:100;flex-direction:column;background:#000;}
-#gamePage.open{display:flex;}
+#gamePage{display:none;position:fixed;inset:0;z-index:100;background:#000;}
+#gamePage.open{display:flex;flex-direction:column;}
+#gameInner{display:flex;flex-direction:column;max-width:560px;width:100%;margin:0 auto;height:100%;flex:1;}
 .game-topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--sage);}
 .btn-back{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);border:none;border-radius:50px;padding:7px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
 .topbar-title{font-family:'Cormorant Garamond',serif;font-size:14px;color:rgba(255,255,255,0.9);font-weight:300;flex:1;text-align:center;padding:0 8px;}
@@ -153,13 +154,13 @@ body{min-height:100vh;}
 </div>
 
 <div id="gamePage">
-  <div class="game-topbar">
+  <div id="gameInner"><div class="game-topbar">
     <button class="btn-back" onclick="closeGame()">← <span id="backLabel">Retour</span></button>
     <div class="topbar-title" id="gameTitle"></div>
     <button class="btn-topshare" onclick="shareCurrentGame()">↗</button>
   </div>
   <iframe id="gameFrame" src="" allowfullscreen allow="autoplay"></iframe>
-</div>
+</div></div>
 
 <script>
 var lang='fr';
