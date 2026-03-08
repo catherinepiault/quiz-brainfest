@@ -20,8 +20,12 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);}
 body{min-height:100vh;}
+#hubPage{max-width:560px;margin:0 auto;}
+/* On desktop, keep background full width but content centered */
+.hub-header{max-width:560px;margin:0 auto;left:0;right:0;}
 
-.hub-header{position:sticky;top:0;z-index:50;background:rgba(247,243,236,0.96);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--grey-light);}
+.hub-header-wrap{position:sticky;top:0;z-index:50;background:rgba(247,243,236,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--grey-light);}
+.hub-header{max-width:560px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;}
 .brand{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--sage);}
 .brand span{color:var(--charcoal);font-weight:300;}
 .lang-toggle{background:none;border:1px solid var(--grey-light);border-radius:20px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--charcoal);}
@@ -81,7 +85,7 @@ body{min-height:100vh;}
 
 <div id="hubPage">
 
-  <div class="hub-header">
+  <div class="hub-header-wrap"><div class="hub-header">
     <div class="brand">Brain<span>Fest</span></div>
     <button class="lang-toggle" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
   </div>
