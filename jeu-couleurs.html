@@ -47,8 +47,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
 .status-sub{font-size:11px;color:var(--grey);margin-top:2px;}
 
 /* GRID */
-.grid-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 18px;min-height:0;overflow:hidden;}
-.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:min(320px, calc(100vh - 280px));}
+.grid-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 12px;min-height:0;overflow:hidden;}
+.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;height:100%;max-width:320px;max-height:calc(100% - 4px);}
 .color-btn{
   aspect-ratio:1;border-radius:20px;border:3px solid rgba(255,255,255,0.35);
   cursor:pointer;transition:transform 0.1s,box-shadow 0.15s,border-color 0.15s;
@@ -279,6 +279,29 @@ function playAmb(){
 // ══════════════════
 // SPEECH SYNTHESIS
 // ══════════════════
+
+function speakGoodbye(onEnd) {
+  const text = lang === 'fr'
+    ? 'Tu peux rejouer quand tu veux... à bientôt !'
+    : 'You can play again whenever you like... see you soon!';
+  if (!window.speechSynthesis) { if (onEnd) setTimeout(onEnd, 400); return; }
+  window.speechSynthesis.cancel();
+  function go() {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'fr' ? 'fr-FR' : 'en-GB';
+    u.rate = 0.88; u.pitch = 1.15; u.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const pref = ['Amélie','Lea','Léa','Marie','Audrey','Julie','Alice','Samantha','Karen','Fiona','Victoria'];
+    const v = voices.find(v => v.lang.startsWith(lang==='fr'?'fr':'en') && pref.some(p => v.name.includes(p)))
+           || voices.find(v => v.lang.startsWith(lang==='fr'?'fr':'en'));
+    if (v) u.voice = v;
+    if (onEnd) { u.onend = onEnd; u.onerror = () => setTimeout(onEnd, 400); }
+    window.speechSynthesis.speak(u);
+  }
+  const vv = window.speechSynthesis.getVoices();
+  if (vv.length) go(); else window.speechSynthesis.onvoiceschanged = go;
+}
+
 function speak(text, onEnd) {
   if (!window.speechSynthesis) { if(onEnd) setTimeout(onEnd,400); return; }
   window.speechSynthesis.cancel();
@@ -379,7 +402,8 @@ function handlePick(ci) {
       G.phase = 'watch';
       disableGrid(true);
       setStatus(T[lang].bravo, T[lang].next);
-      speak(T[lang].bravo, () => {
+      // no bravo voice
+      {
         setTimeout(() => {
           G.level++;
           document.getElementById('lvlBadge').textContent = T[lang].lvl+' '+G.level;
@@ -396,7 +420,7 @@ function handlePick(ci) {
     if (btn) btn.classList.add('wrong-flash');
     const expName = lang==='fr'?COLORS[expected].fr:COLORS[expected].en;
     setStatus(T[lang].oops, T[lang].wrong_was+' '+expName);
-    speak(T[lang].oops, () => {
+    speakGoodbye(() => {
       setTimeout(() => {
         if (G.level > G.best) { G.best=G.level; try{localStorage.setItem('bf_col_best',G.best);}catch(e){} }
         setTimeout(render, 600);
@@ -507,7 +531,6 @@ if (window.speechSynthesis) {
   window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
-setLang('fr');
 </script>
 </body>
 </html>
